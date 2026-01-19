@@ -1,0 +1,37 @@
+<div class="dashboard-header">
+  <h2>Daftar Kelas Sedang Berlangsung</h2>
+</div>
+
+@if (loading) {
+  <div class="loading">Memuat kelas...</div>
+} @else {
+  <div class="courses-grid">
+    @for (classSession of classSessions; track classSession.id) {
+      <article class="course-card">
+        <header class="course-header">
+          <h3 class="course-name">{{ classSession.course.name }}</h3>
+          <div class="course-time">{{ classSession.timeRange }}</div>
+        </header>
+
+        <div class="course-body">
+          <div class="course-info">
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">⏱️</span>
+              <span>{{ classSession.duration }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">📍</span>
+              <span>{{ classSession.place }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">👨‍🏫</span>
+              <span>{{ classSession.lecturer }}</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    } @empty {
+      <div class="no-data">Tidak ada kelas yang sedang berlangsung.</div>
+    }
+  </div>
+}

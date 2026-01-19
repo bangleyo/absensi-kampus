@@ -1,0 +1,58 @@
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">EduTrack</div>
+    <button class="toggle-sidebar" (click)="toggleSidebar()">☰</button>
+  </div>
+  <div class="user-card">
+    <div class="user-avatar-lg">👤</div>
+    <div class="user-name" id="sidebarUserName">{{ user?.name }}</div>
+    <div class="user-nim" id="sidebarUserNim">{{ displayName }}</div>
+    <div class="user-program">Teknik Informatika</div>
+  </div>
+  <ul class="nav-menu">
+    <li class="nav-item">
+      <a class="nav-link"
+         (click)="navigateTo('dashboard', 'Dashboard', $event)"
+         href="javascript:void(0)">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         (click)="navigateTo('course', 'Matakuliah', $event)"
+         href="javascript:void(0)">
+        <span class="nav-icon">📚</span>
+        <span>Matakuliah</span>
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="this.user?.role === 'ADMIN'">
+      <a class="nav-link"
+         (click)="navigateTo('class-session', 'Sesi Kelas', $event)"
+         href="javascript:void(0)">
+        <span class="nav-icon">👨‍🏫</span>
+        <span>Sesi Kelas</span>
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="this.user?.role === 'ADMIN'">
+      <a class="nav-link"
+         (click)="navigateTo('student', 'MAHASISWA', $event)"
+         href="javascript:void(0)">
+        <span class="nav-icon">👨</span>
+        <span>Mahasiswa</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="javascript:void(0)" (click)="navigateTo('profile', 'Setting')">
+        <span class="nav-icon">🔐</span>
+        <span>Setting</span>
+      </a>
+    </li>
+  </ul>
+  <div class="logout-link">
+    <button class="nav-link" (click)="logout()">
+      <span class="nav-icon">🚪</span>
+      <span>Logout</span>
+    </button>
+  </div>
+</div>

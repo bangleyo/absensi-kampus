@@ -1,0 +1,19 @@
+<header class="navbar" role="banner" aria-label="Desktop Header">
+  <h1 class="navbar-title">{{ (pageTitle$ | async) || 'Dashboard' }}</h1>
+
+  <div class="user-info" role="status" aria-live="polite">
+    <div class="user-details">
+      <div class="user-role" aria-label="User Role">{{ user?.role || 'Loading...' }}</div>
+      <div class="user-display" id="userDisplay" aria-describedby="userDisplay" *ngIf="user?.role === 'STUDENT'">
+        {{ displayName || 'User' }}
+      </div>
+    </div>
+
+    <div class="user-avatar"
+         role="img"
+         aria-label="User profile picture"
+         title="User Profile">
+      👤
+    </div>
+  </div>
+</header>

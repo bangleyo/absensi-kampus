@@ -1,0 +1,68 @@
+<div class="dashboard-header">
+  <h2>Kelas Sedang Berlangsung</h2>
+</div>
+
+@if (loading) {
+  <div class="loading">Memuat kelas...</div>
+} @else {
+  <div class="courses-grid">
+    @for (classSession of classSessions; track classSession.id) {
+      <article class="course-card">
+        <header class="course-header">
+          <h3 class="course-name">{{ classSession.course.name }}</h3>
+          <div class="course-time">{{ classSession.timeRange }}</div>
+        </header>
+
+        <div class="course-body">
+          <div class="course-info">
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">⏱️</span>
+              <span>{{ classSession.duration }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">📍</span>
+              <span>{{ classSession.place }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">👨‍🏫</span>
+              <span>{{ classSession.lecturer }}</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="attendance-btn"
+            [disabled]="classSession.isExpired"
+            (click)="showQrModal(classSession.id)">
+            {{ classSession.isExpired ? 'Sudah Absen' : 'Absen Sekarang' }}
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+}
+
+<div class="success-popup" id="successPopup">{{ popUpMsg }}</div>
+<div class="failed-popup" id="failedPopup">{{ popUpMsg }}</div>
+
+@if (showQrModals) {
+  <div class="qr-modal show">
+    <div class="qr-modal-overlay" (click)="closeQrModal()"></div>
+    <div class="qr-modal-content">
+      <div class="qr-header">
+        <h3>Scan QR Code Absensi</h3>
+        <button class="qr-close" (click)="closeQrModal()" aria-label="Close modal">×</button>
+      </div>
+      <div class="qr-scanner-container">
+        <video #qrVideo autoplay muted playsinline></video>
+        <canvas #qrCanvas style="display: none;"></canvas>
+        <div class="qr-overlay">
+          <div class="qr-frame"></div>
+          <p>Arahkan kamera ke QR Code</p>
+        </div>
+      </div>
+      <div class="qr-status" id="qrStatus">Memulai scanner...</div>
+      <button class="btn-secondary" (click)="closeQrModal()">Batal</button>
+    </div>
+  </div>
+}

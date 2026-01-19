@@ -1,0 +1,59 @@
+<div *ngIf="loading" class="loading">Memuat data...</div>
+
+<div *ngIf="!loading" class="admin-table-container">
+  <div class="table-wrapper">
+    <table class="responsive-table">
+      <thead>
+      <tr>
+        <th>No</th>
+        <th *ngFor="let col of columns">{{ col.label }}</th>
+        <th *ngIf="actionTemplate">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of paginatedData; let i = index">
+        <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+        <td *ngFor="let col of columns">{{ resolveValue(item, col.key) }}</td>
+
+        <td class="actions" *ngIf="actionTemplate">
+          <ng-container [ngTemplateOutlet]="actionTemplate" [ngTemplateOutletContext]="{ $implicit: item }">
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <div class="pagination-info">
+      <label>Show:</label>
+      <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()" class="items-select">
+        <option *ngFor="let opt of paginationOptions" [value]="opt">{{ opt }}</option>
+      </select>
+    </div>
+
+    <div class="page-nav">
+      <button
+        class="btn btn-page"
+        (click)="setPage(currentPage - 1)"
+        [disabled]="currentPage === 1">
+        &larr; Prev
+      </button>
+
+      <button
+        *ngFor="let p of pages"
+        class="btn btn-page"
+        [class.active]="p === currentPage"
+        (click)="setPage(p)">
+        {{ p }}
+      </button>
+
+      <button
+        class="btn btn-page"
+        (click)="setPage(currentPage + 1)"
+        [disabled]="currentPage === totalPages">
+        Next &rarr;
+      </button>
+    </div>
+  </div>
+</div>

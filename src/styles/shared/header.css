@@ -1,0 +1,15 @@
+/* ========== Dashboard Header ========== */
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h2 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.dashboard-header p {
+  font-size: 14px;
+  color: #666;
+}

@@ -1,0 +1,38 @@
+<div class="dashboard-header">
+  <h2>Daftar Matakuliah</h2>
+</div>
+
+@if (loading) {
+  <div class="loading">Memuat Matakuliah...</div>
+} @else {
+  <div class="courses-grid">
+    @for (studentCourse of studentCourses; track studentCourse.name) {
+      <article class="course-card">
+        <header class="course-header">
+          <h3 class="course-name">{{ studentCourse.name }}</h3>
+        </header>
+
+        <div class="course-body">
+          <div class="course-info">
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">📍</span>
+              <span>{{ studentCourse.code }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon" aria-hidden="true">👨‍🏫</span>
+              <span>{{ studentCourse.enrolledAt }}</span>
+            </div>
+          </div>
+
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="attendance-btn"-->
+<!--            [disabled]="classSession.isExpired"-->
+<!--            (click)="showQrModal(classSession.id)">-->
+<!--            {{ classSession.isExpired ? 'Sudah Absen' : 'Absen Sekarang' }}-->
+<!--          </button>-->
+        </div>
+      </article>
+    }
+  </div>
+}

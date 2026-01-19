@@ -1,0 +1,86 @@
+<div class="dashboard-header">
+  <h2>{{ mode === 'create' ? 'Tambah Matakuliah' : 'Edit Matakuliah' }}</h2>
+</div>
+
+
+<section class="profile-section" aria-labelledby="form-title">
+  <form
+    #nameCodeForm="ngForm"
+    class="name-code-form"
+    (ngSubmit)="onNameCodeSubmit(nameCodeForm)"
+    novalidate>
+
+    <!-- 1. Name Field -->
+    <div class="form-group">
+      <label for="name" class="form-label">
+        Name<span class="required">*</span>
+      </label>
+
+      <div class="input-group">
+        <input
+          id="name"
+          type="text"
+          class="form-input"
+          name="name"
+          [(ngModel)]="formData.name"
+          required
+          minlength="2"
+          #name="ngModel"
+          [class.error]="name.invalid && (name.dirty || nameCodeForm.submitted)"
+          aria-describedby="name-error">
+      </div>
+
+      <div
+        id="name-error"
+        class="error-message"
+        role="alert"
+        *ngIf="name.invalid && (name.dirty || nameCodeForm.submitted)">
+        <span *ngIf="name.errors?.['required']">Name wajib diisi</span>
+        <span *ngIf="name.errors?.['minlength']">Minimal 2 karakter</span>
+      </div>
+    </div>
+
+    <!-- 2. Code Field -->
+    <div class="form-group">
+      <label for="code" class="form-label">
+        Code<span class="required">*</span>
+      </label>
+
+      <div class="input-group">
+        <input
+          id="code"
+          type="text"
+          class="form-input"
+          name="code"
+          [(ngModel)]="formData.code"
+          required
+          minlength="3"
+          #code="ngModel"
+          [class.error]="code.invalid && (code.dirty || nameCodeForm.submitted)"
+          aria-describedby="code-error">
+      </div>
+
+      <div
+        id="code-error"
+        class="error-message"
+        role="alert"
+        *ngIf="code.invalid && (code.dirty || nameCodeForm.submitted)">
+        <span *ngIf="code.errors?.['required']">Code wajib diisi</span>
+        <span *ngIf="code.errors?.['minlength']">Minimal 3 karakter</span>
+      </div>
+    </div>
+
+    <!-- 3. Form Actions -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="mode === 'create' ? resetForm() : back()">
+        {{ mode === 'create' ? 'Bersihkan' : 'Batal' }}
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="nameCodeForm.invalid">
+        {{ mode === 'create' ? 'Tambah Matakuliah' : 'Update Matakuliah' }}
+      </button>
+    </div>
+  </form>
+</section>

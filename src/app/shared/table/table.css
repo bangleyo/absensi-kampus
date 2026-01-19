@@ -1,0 +1,201 @@
+/* ==========================================================================
+   ADMIN COURSE table STYLES
+   Responsive table dengan CRUD actions & pagination
+   ========================================================================== */
+
+/* Container utama dengan horizontal scroll untuk mobile */
+.admin-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Action buttons di atas table */
+.table-actions {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Table card wrapper */
+.table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Table base styles */
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+/* Sticky table header */
+.responsive-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Row hover effect */
+.responsive-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+/* Action column */
+.actions {
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   BUTTON STYLES
+   ========================================================================== */
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-right: 4px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-edit {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn-page {
+  background: #f0f0f0;
+  color: #333;
+  margin: 0 2px;
+}
+
+/* Hover & active states */
+.btn-page.active,
+.btn:hover,
+.btn-page.active:hover {
+  background: #667eea !important;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   PAGINATION
+   ========================================================================== */
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: #fafbfc;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.items-select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  min-width: 60px;
+}
+
+.items-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .page-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .responsive-table th,
+  .responsive-table td {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-right: 0;
+  }
+}
+
+/* Print styles */
+@media print {
+  .table-actions,
+  .pagination {
+    display: none;
+  }
+
+  .table-wrapper {
+    box-shadow: none;
+  }
+}

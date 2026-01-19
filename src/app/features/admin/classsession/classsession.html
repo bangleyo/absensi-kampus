@@ -1,0 +1,38 @@
+<div class="table-actions">
+  <button class="btn btn-primary" (click)="createClassSession()">+ Tambah Sesi Kelas</button>
+</div>
+
+<app-shared-table
+  [data]="classSessions"
+  [columns]="tableColumns"
+  [loading]="loading">
+
+  <ng-template #actionTemplate let-item>
+    <button class="btn btn-edit" (click)="editClassSession(item)">Edit</button>
+<!--    <button class="btn btn-delete" (click)="deleteClassSession(item)">Delete</button>-->
+    <button class="btn btn-download" (click)="downloadQR(item)">
+    📥 QR
+    </button>
+  </ng-template>
+</app-shared-table>
+
+<!-- DELETE MODAL -->
+<!--<div class="delete-modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">-->
+<!--  <div class="delete-modal" (click)="$event.stopPropagation()">-->
+<!--    <div class="delete-modal-header">-->
+<!--      <h3>Konfirmasi Hapus</h3>-->
+<!--    </div>-->
+<!--    <div class="delete-modal-body">-->
+<!--      <p>Hapus matakuliah "<strong>{{ selectedClassSession?.name }}</strong>" ({{ selectedClassSession?.code }})?</p>-->
+<!--      <p class="delete-warning">Data tidak bisa dikembalikan.</p>-->
+<!--    </div>-->
+<!--    <div class="delete-modal-actions">-->
+<!--      <button class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading">-->
+<!--        Batal-->
+<!--      </button>-->
+<!--      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">-->
+<!--        {{ deleteLoading ? 'Menghapus...' : 'Hapus' }}-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
