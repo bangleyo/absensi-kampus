@@ -20,10 +20,9 @@ import {finalize} from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule]
 })
-export class AdminCourseComponent implements OnInit, AfterViewInit {
+export class AdminCourseComponent implements OnInit {
   courses: Course[] = [];
   loading = true;
-  @ViewChild('modalRef') modalRef!: SharedModalComponent;
   tableColumns = [
     { key: 'name', label: 'Name' },
     { key: 'code', label: 'Code' }
@@ -41,13 +40,6 @@ export class AdminCourseComponent implements OnInit, AfterViewInit {
 ) {}
 
   ngOnInit() { this.loadCourses(); }
-
-  ngAfterViewInit() {
-    // Direct register component instance, bukan VCR
-    this.modalService.register(this.modalRef);
-    // Pastikan modalRef ada
-    console.log('Modal registered:', this.modalRef); // Debug
-  }
 
   loadCourses() {
     this.courseService.getCourses().subscribe(res => {

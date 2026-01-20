@@ -71,11 +71,28 @@
   font-weight: 500;
   transition: all 0.2s ease;
   margin-right: 4px;
+  margin-left: 4px;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+}
+
+.btn-back {
+  background: #ffffff;
+  color: #764ba2; /* Teks warna ungu utama Anda */
+  border: 1px solid #e0e0e0; /* Border abu-abu sangat muda */
+  box-shadow: 0 2px 4px rgba(118, 75, 162, 0.08); /* Shadow ungu tipis */
+  transition: all 0.3s ease;
+  margin-right: auto;
+}
+
+.btn-back:hover {
+  background: #764ba2;
+  color: #ffffff;
+  border-color: #764ba2;
+  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3); /* Shadow menguat saat hover */
 }
 
 .btn-edit {

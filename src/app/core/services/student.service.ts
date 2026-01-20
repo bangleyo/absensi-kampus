@@ -12,5 +12,17 @@ export class StudentService {
   getStudents(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/student`);
   }
+
+  createStudent(name: string, nim: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/student`, {nim: nim, name: name});
+  }
+
+  updateStudent(id: number, name: string, nim: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/student/${id}`, {nim: nim, name: name});
+  }
+
+  deleteStudent(id: number) {
+    return this.http.delete(`${this.apiUrl}/student/${id}`);
+  }
 }
 

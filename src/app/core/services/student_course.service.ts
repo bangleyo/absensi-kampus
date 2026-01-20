@@ -15,7 +15,12 @@ export class StudentCourseService {
 
   constructor(private http: HttpClient) {}
 
-  getEnrollCourse(): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/student_course/enrolled`);
+  getEnrollCourse(nimParam?: any): Observable<ApiResponse> {
+    const nim = nimParam || sessionStorage.getItem('nim');
+    return this.http.get<ApiResponse>(`${this.apiUrl}/student_course/enrolled/${nim}`);
+  }
+
+  deleteEnrollCourse(id: number){
+    return this.http.delete(`${this.apiUrl}/student_course/${id}`);
   }
 }
