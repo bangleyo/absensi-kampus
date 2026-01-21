@@ -1,13 +1,13 @@
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-title">EduTrack</div>
+    <div class="sidebar-title">AuraTrack</div>
     <button class="toggle-sidebar" (click)="toggleSidebar()">☰</button>
   </div>
   <div class="user-card">
     <div class="user-avatar-lg">👤</div>
-    <div class="user-name" id="sidebarUserName">{{ user?.name }}</div>
-    <div class="user-nim" id="sidebarUserNim">{{ displayName }}</div>
-    <div class="user-program">Teknik Informatika</div>
+    <div *ngIf="user?.role === 'STUDENT'" class="user-name" id="sidebarUserName">{{ user?.name }}</div>
+    <div *ngIf="user?.role === 'STUDENT'" class="user-nim" id="sidebarUserNim">{{ displayName }}</div>
+    <div class="user-program">{{ user?.role === 'STUDENT' ? user?.major : 'ADMIN'}}</div>
   </div>
   <ul class="nav-menu">
     <li class="nav-item">

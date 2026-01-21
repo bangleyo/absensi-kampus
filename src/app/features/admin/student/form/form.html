@@ -19,13 +19,13 @@
         <input
           id="nim"
           type="text"
-          readonly
           class="form-input"
           name="nim"
           [(ngModel)]="formData.nim"
           required
           minlength="3"
           #nim="ngModel"
+          [readonly]="mode === 'edit'"
           [class.error]="nim.invalid && (nim.dirty || nameCodeForm.submitted)"
           aria-describedby="nim-error">
       </div>

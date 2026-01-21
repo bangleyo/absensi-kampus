@@ -32,9 +32,9 @@
           <button
             type="button"
             class="attendance-btn"
-            [disabled]="classSession.isExpired"
+            [disabled]="classSession.hasAttended"
             (click)="showQrModal(classSession.id)">
-            {{ classSession.isExpired ? 'Sudah Absen' : 'Absen Sekarang' }}
+            {{ classSession.hasAttended ? 'Sudah Absen' : 'Absen Sekarang' }}
           </button>
         </div>
       </article>

@@ -15,6 +15,7 @@ import {AdminStudentComponent} from './features/admin/student/student';
 import {StudentFormComponent} from './features/admin/student/form/form';
 import {AdminStudentCourseComponent} from './features/admin/student/course/student_course';
 import {CreateStudentCourseComponent} from './features/admin/student/course/create/create';
+import {AdminDashboardAttendanceComponent} from './features/admin/dashboard/attendance/attendance';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -31,6 +32,10 @@ export const routes: Routes = [
       {
         path: 'admin/dashboard',
         component: AdminDashboardComponent,
+      },
+      {
+        path: 'admin/dashboard/attendance/:id',
+        component: AdminDashboardAttendanceComponent,
       },
       {
         path: 'admin/course',
@@ -64,6 +69,7 @@ export const routes: Routes = [
         path: 'admin/student/course/create',
         component: CreateStudentCourseComponent,
       },
+      { path: 'admin/profile', component: ProfileComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }

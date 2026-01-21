@@ -25,6 +25,6 @@ export class StudentCourseService {
   }
 
   enrollCourse(nim: string, courseId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/student_course/students/${nim}/courses/${courseId}`, {nim: nim, courseId: courseId});
+    return this.http.post(`${this.apiUrl}/student_course`, {nim: nim, courseId: courseId});
   }
 }

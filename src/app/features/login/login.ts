@@ -55,12 +55,13 @@ export class LoginComponent implements OnInit {
         // 1. Simpan Data dari format: res.data.token
         if (res.status === 'success' && res.data) {
 
-          const expiryTime = Date.now() + (30 * 60 * 1000); // 30 menit dari sekarang
+          const expiryTime = Date.now() + (30 * 60 * 1000);
           const sessionData = {
             role: res.data.role,
             username : res.data.username,
             name : res.data.name,
             nim : res.data.nim,
+            major : res.data.major,
             expiry: expiryTime
           };
           sessionStorage.setItem('nim', res.data.nim);

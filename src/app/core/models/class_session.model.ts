@@ -9,4 +9,5 @@ export interface ClassSession {
   timeRange: string;
   isExpired: boolean;
   qrToken: string;
+  hasAttended: boolean;
 }

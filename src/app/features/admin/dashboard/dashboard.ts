@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ClassSession} from '../../../core/models/class_session.model';
 import {ClassSessionService} from '../../../core/services/class_session.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,7 +22,8 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private classSessionService: ClassSessionService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router,
   ) { }
 
   // --- Lifecycle Hooks ---
@@ -46,6 +48,6 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   processAttendance(id: number) {
-    return false;
+    this.router.navigate([`/admin/dashboard/attendance/${id}`]);
   }
 }

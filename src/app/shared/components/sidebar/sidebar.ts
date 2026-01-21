@@ -13,7 +13,8 @@ interface UserSession {
   readonly role: 'STUDENT' | 'ADMIN' | 'LECTURER';
   readonly username: string;
   readonly name: string;
-  readonly nim?: string;
+  readonly nim: string;
+  readonly major: string;
 }
 
 @Component({

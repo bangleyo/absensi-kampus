@@ -1,0 +1,13 @@
+<div class="table-actions">
+  <button class="btn btn-primary btn-back" (click)="back()">Kembali</button>
+  <button class="btn btn-primary" (click)="downloadReport()">Unduh Absensi</button>
+</div>
+
+<app-shared-table
+  [data]="attendanceUser"
+  [columns]="tableColumns"
+  [loading]="loading">
+
+  <ng-template>
+  </ng-template>
+</app-shared-table>

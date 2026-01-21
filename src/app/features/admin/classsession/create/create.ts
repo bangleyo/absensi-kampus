@@ -95,7 +95,7 @@ export class CreateClassSessionComponent implements OnInit {
             if (res.status === 'success') {
               this.formData = {
                 id: res.data.id,
-                courseId: res.data.course.id, // Pastikan ID yang di-set sesuai dengan value di <select>
+                courseId: res.data.course.id,
                 lecturer: res.data.lecturer,
                 place: res.data.place,
                 startTime: res.data.startTime,
