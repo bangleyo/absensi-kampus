@@ -63,7 +63,12 @@ export class AdminStudentCourseComponent implements OnInit {
   }
 
   createStudentCourse() {
-    this.router.navigate([`/admin/student/course/create`]);
+    this.router.navigate([`/admin/student/course/create`], {
+      queryParams: {
+        "nim": this.nim,
+        "name": this.name
+      }
+    });
   }
 
   deleteStudentCourse(studentCourse: any) {

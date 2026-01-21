@@ -7,7 +7,15 @@
 } @else {
   <div class="courses-grid">
     @for (classSession of classSessions; track classSession.id) {
-      <article class="course-card">
+      <article
+        class="course-card"
+        [class.expired]="classSession.isExpired"
+        [class.active-card]="!classSession.isExpired"
+        (click)="!classSession.isExpired && processAttendance(classSession.id)"
+        role="button"
+        [attr.aria-disabled]="classSession.isExpired"
+        tabindex="0">
+
         <header class="course-header">
           <h3 class="course-name">{{ classSession.course.name }}</h3>
           <div class="course-time">{{ classSession.timeRange }}</div>
@@ -16,22 +24,20 @@
         <div class="course-body">
           <div class="course-info">
             <div class="info-item">
-              <span class="info-icon" aria-hidden="true">⏱️</span>
+              <span class="info-icon">⏱️</span>
               <span>{{ classSession.duration }}</span>
             </div>
             <div class="info-item">
-              <span class="info-icon" aria-hidden="true">📍</span>
+              <span class="info-icon">📍</span>
               <span>{{ classSession.place }}</span>
             </div>
             <div class="info-item">
-              <span class="info-icon" aria-hidden="true">👨‍🏫</span>
+              <span class="info-icon">👨‍🏫</span>
               <span>{{ classSession.lecturer }}</span>
             </div>
           </div>
         </div>
       </article>
-    } @empty {
-      <div class="no-data">Tidak ada kelas yang sedang berlangsung.</div>
     }
   </div>
 }

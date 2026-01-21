@@ -44,4 +44,8 @@ export class AdminDashboardComponent implements OnInit {
       }
     });
   }
+
+  processAttendance(id: number) {
+    return false;
+  }
 }

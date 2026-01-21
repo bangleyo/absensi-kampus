@@ -23,4 +23,8 @@ export class StudentCourseService {
   deleteEnrollCourse(id: number){
     return this.http.delete(`${this.apiUrl}/student_course/${id}`);
   }
+
+  enrollCourse(nim: string, courseId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/student_course/students/${nim}/courses/${courseId}`, {nim: nim, courseId: courseId});
+  }
 }

@@ -1,0 +1,41 @@
+<div class="dashboard-header">
+  <h2>{{ mode === 'create' ? 'Tambah Matakuliah' : 'Edit Matakuliah' }}</h2>
+</div>
+
+
+<section class="profile-section" aria-labelledby="form-title">
+  <form
+    #nameCodeForm="ngForm"
+    class="name-code-form"
+    (ngSubmit)="onNameCodeSubmit(nameCodeForm)">
+
+    <div class="form-group">
+      <label class="form-label">
+        Mata Kuliah<span class="required">*</span>
+      </label>
+      <div class="input-group">
+        <select
+          class="form-input"
+          name="id"
+          [(ngModel)]="formData"
+          #courseSelect="ngModel"
+          required>
+          <option [ngValue]="null" disabled>Pilih Mata Kuliah</option>
+          <option *ngFor="let c of course" [ngValue]="c">{{ c.name }} - {{ c.code }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="back()">
+        Batal
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="nameCodeForm.invalid">
+        Tambah Matakuliah
+      </button>
+    </div>
+  </form>
+</section>

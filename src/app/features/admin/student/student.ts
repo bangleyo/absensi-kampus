@@ -18,6 +18,7 @@ import {NgIf} from '@angular/common';
     '../../../shared/table/table.css',
     './student.css',
   ],
+  standalone: true
 })
 export class AdminStudentComponent implements OnInit {
   student: Student[] = [];

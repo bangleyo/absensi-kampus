@@ -1,0 +1,183 @@
+.profile-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.profile-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.5rem;
+  font-size: 14px;
+}
+
+/* Sisanya sama persis dengan profile.css - gradient, input glow, buttons, dll. */
+/* ========================================
+   profile.css - Profile Form Styles
+   Organized by Visual Priority & Function
+========================================= */
+
+/* ========== 1. ROOT LAYOUT ========== */
+.profile-section {
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  max-width: 500px;
+  padding: 2rem;
+  color: #fff;
+}
+
+/* ========== 2. TYPOGRAPHY ========== */
+.profile-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 0.5rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.required {
+  color: #e74c3c;
+  font-size: 16px;
+  margin-left: 0.25rem;
+}
+
+/* ========== 3. FORM SPACING ========== */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+/* ========== 4. INPUT CONTAINER ========== */
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ========== 5. FORM INPUTS ========== */
+.form-input {
+  flex: 1;
+  padding: 12px 50px 12px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  /*width: 100%;*/
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.error {
+  border-color: #e74c3c;
+}
+
+/* ========== 6. PASSWORD TOGGLE ========== */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.toggle-password:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateY(-50%) scale(1.05);
+}
+
+/* ========== 7. PASSWORD ICONS ========== */
+.toggle-password[aria-label*="Sembunyikan"]::before {
+  content: '🙈';
+  font-size: 20px;
+  line-height: 1;
+}
+
+.toggle-password[aria-label*="Tampilkan"]::before {
+  content: '👁️';
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* ========== 8. ERROR STATES ========== */
+.error-message {
+  margin-top: 0.5rem;
+  color: #e74c3c;
+  font-size: 14px;
+}
+
+/* ========== 9. BUTTONS ========== */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+/* ========== 10. STATUS MESSAGES ========== */
+.form-status {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.form-status.success {
+  background: #f1f8f4;
+  color: #388e3c;
+  border: 1px solid #e8f5e9;
+}
+
+.form-status.error {
+  background: #fff5f5;
+  color: #d32f2f;
+  border: 1px solid #ffebee;
+}
+
+/* ========== 11. RESPONSIVE ========== */
+@media (max-width: 480px) {
+  .profile-section {
+    padding: 1rem;
+    margin: 0;
+  }
+  .form-actions {
+    flex-direction: column;
+  }
+}

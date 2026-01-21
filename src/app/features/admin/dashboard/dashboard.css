@@ -1,0 +1,36 @@
+.course-card.active-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+/* Efek saat card di-hover */
+.course-card.active-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  border-color: #007bff; /* Warna biru sesuai tema Angular/Bootstrap */
+}
+
+/* Efek saat card ditekan */
+.course-card.active-card:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-card.expired {
+  cursor: not-allowed;
+  opacity: 0.6;
+  filter: grayscale(1);
+}
+
+.status-indicator {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #007bff;
+}
+
+.expired .status-indicator {
+  color: #6c757d;
+}
