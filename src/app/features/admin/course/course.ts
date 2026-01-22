@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
-// Components & Services
 import { SharedTableComponent } from '../../../shared/table/table';
 import { CourseService } from '../../../core/services/course.service';
 import { Course } from '../../../core/models/course.model';
@@ -22,7 +21,6 @@ import { Course } from '../../../core/models/course.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminCourseComponent implements OnInit {
-  // Data Table
   courses: Course[] = [];
   loading = true;
   tableColumns = [
@@ -30,10 +28,16 @@ export class AdminCourseComponent implements OnInit {
     { key: 'code', label: 'Kode' }
   ];
 
-  // Delete State
   showDeleteModal = false;
   selectedCourse: Course | null = null;
   deleteLoading = false;
+
+  // 1. TAMBAHKAN STATE TOAST DISINI
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
 
   constructor(
     private courseService: CourseService,
@@ -58,12 +62,10 @@ export class AdminCourseComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to load courses', err);
-          // Optional: Show toast error here
+          this.showToast('Gagal memuat data course.', 'error');
         }
       });
   }
-
-  // --- ACTIONS ---
 
   createCourse(): void {
     this.router.navigate(['/admin/course/form']);
@@ -71,15 +73,9 @@ export class AdminCourseComponent implements OnInit {
 
   editCourse(course: Course): void {
     this.router.navigate(['/admin/course/form'], {
-      queryParams: {
-        id: course.id,
-        name: course.name,
-        code: course.code
-      }
+      queryParams: { id: course.id, name: course.name, code: course.code }
     });
   }
-
-  // --- DELETE LOGIC ---
 
   deleteCourse(course: Course): void {
     this.selectedCourse = course;
@@ -90,7 +86,7 @@ export class AdminCourseComponent implements OnInit {
     if (!this.selectedCourse) return;
 
     this.deleteLoading = true;
-    this.cdr.detectChanges(); // Update UI button text to "Menghapus..."
+    this.cdr.detectChanges();
 
     this.courseService.deleteCourse(this.selectedCourse.id)
       .pipe(
@@ -102,12 +98,14 @@ export class AdminCourseComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // Refresh data setelah sukses hapus
+          // 2. PANGGIL TOAST SUKSES
+          this.showToast('Matakuliah berhasil dihapus!', 'success');
           this.loadCourses();
         },
         error: (err) => {
           console.error('Delete failed', err);
-          alert('Gagal menghapus data. Silakan coba lagi.'); // Simple fallback alert
+          // 3. PANGGIL TOAST ERROR
+          this.showToast('Gagal menghapus data. Silakan coba lagi.', 'error');
         }
       });
   }
@@ -115,5 +113,16 @@ export class AdminCourseComponent implements OnInit {
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedCourse = null;
+  }
+
+  // 4. HELPER FUNCTION UNTUK MENAMPILKAN TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges(); // Force update UI agar muncul
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges(); // Force update UI agar hilang
+    }, 3000);
   }
 }

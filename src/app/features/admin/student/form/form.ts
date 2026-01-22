@@ -6,7 +6,6 @@ import { finalize } from 'rxjs';
 
 // Services & Models
 import { StudentService } from '../../../../core/services/student.service';
-// Jika Student model belum ada field 'major', Anda bisa gunakan 'any' sementara atau update modelnya
 import { Student } from '../../../../core/models/student.model';
 
 type Mode = 'create' | 'edit';
@@ -25,17 +24,21 @@ type Mode = 'create' | 'edit';
 export class StudentFormComponent implements OnInit {
   @ViewChild('studentForm') studentForm!: NgForm;
 
-  // Extend interface Student secara lokal jika model belum diupdate
   formData: any = { id: 0, nim: '', name: '', major: null };
-
   mode: Mode = 'create';
   isLoading = false;
 
-  // List Jurusan (Hardcoded / Enum Style)
   majors: string[] = [
     'Teknik Informatika',
     'Sistem Informasi'
   ];
+
+  // 1. TAMBAHKAN STATE TOAST
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -52,7 +55,6 @@ export class StudentFormComponent implements OnInit {
           id: Number(params['id']),
           name: params['name'] || '',
           nim: params['nim'] || '',
-          // Pastikan parameter query juga mengirim 'major' jika ingin auto-populate saat edit
           major: params['major'] || null
         };
         this.cdr.detectChanges();
@@ -69,7 +71,6 @@ export class StudentFormComponent implements OnInit {
 
   resetForm(): void {
     this.studentForm.resetForm();
-    // Reset ke default value
     this.formData = { id: 0, nim: '', name: '', major: null };
     this.mode = 'create';
     this.cdr.detectChanges();
@@ -79,27 +80,26 @@ export class StudentFormComponent implements OnInit {
     this.router.navigate(['/admin/student']);
   }
 
-  // --- API CALLS ---
+  // --- API CALLS DENGAN TOAST ---
 
   private createStudent(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    // Update argumen createStudent sesuai kebutuhan backend (tambahkan parameter major)
     this.studentService.createStudent(this.formData.name, this.formData.nim, this.formData.major)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: () => {
-          this.router.navigate(['/admin/student']);
+          // Sukses: Toast -> Delay -> Redirect
+          this.showToast('Mahasiswa berhasil ditambahkan!', 'success');
+          setTimeout(() => {
+            this.back();
+          }, 1500);
         },
         error: (err) => {
           console.error('Gagal membuat student:', err);
-          alert('Gagal menambah mahasiswa. Pastikan NIM belum terdaftar.');
+          this.showToast('Gagal menambah mahasiswa. Pastikan NIM belum terdaftar.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -108,22 +108,32 @@ export class StudentFormComponent implements OnInit {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    // Update argumen updateStudent sesuai kebutuhan backend
     this.studentService.updateStudent(this.formData.id, this.formData.name, this.formData.nim, this.formData.major)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: () => {
-          this.router.navigate(['/admin/student']);
+          // Sukses: Toast -> Delay -> Redirect
+          this.showToast('Data mahasiswa berhasil diperbarui!', 'success');
+          setTimeout(() => {
+            this.back();
+          }, 1500);
         },
         error: (err) => {
           console.error('Gagal update student:', err);
-          alert('Gagal memperbarui data mahasiswa.');
+          this.showToast('Gagal memperbarui data mahasiswa.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

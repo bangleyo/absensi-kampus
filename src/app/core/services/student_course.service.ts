@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {environment} from '../../environments/environment';
-import {StudentCourse} from '../models/student_course.model';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { StudentCourse } from '../models/student_course.model';
+import { AuthService } from './auth.service';
 
 interface ApiResponse {
   status: string;
@@ -11,20 +12,29 @@ interface ApiResponse {
 
 @Injectable({ providedIn: 'root' })
 export class StudentCourseService {
-  private apiUrl = environment.apiUrl || 'http://localhost:9191/api/v1';
+  private readonly apiUrl = `${environment.apiUrl || 'http://localhost:9191/api/v1'}/student_course`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService // Inject AuthService
+  ) {}
 
-  getEnrollCourse(nimParam?: any): Observable<ApiResponse> {
-    const nim = nimParam || sessionStorage.getItem('nim');
-    return this.http.get<ApiResponse>(`${this.apiUrl}/student_course/enrolled/${nim}`);
-  }
+  getEnrollCourse(nimParam?: string): Observable<ApiResponse> {
+    // Ambil NIM dari parameter ATAU dari user yang sedang login
+    const nim = nimParam || this.authService.getUser()?.nim;
 
-  deleteEnrollCourse(id: number){
-    return this.http.delete(`${this.apiUrl}/student_course/${id}`);
+    if (!nim) {
+      console.warn('NIM tidak ditemukan pada session user.');
+    }
+
+    return this.http.get<ApiResponse>(`${this.apiUrl}/enrolled/${nim}`);
   }
 
   enrollCourse(nim: string, courseId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/student_course`, {nim: nim, courseId: courseId});
+    return this.http.post(this.apiUrl, { nim, courseId });
+  }
+
+  deleteEnrollCourse(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

@@ -12,7 +12,7 @@ import { LayoutService } from '../../core/services/layout.service'; // Wajib unt
   styleUrls: [
     '../../../styles/shared/header.css',
     '../../../styles/shared/course-card.css',
-    './course.css'
+    '../../../styles/shared/student.pages.css',
   ],
   standalone: true,
   imports: [CommonModule]

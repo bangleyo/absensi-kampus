@@ -30,13 +30,20 @@ export class AdminStudentComponent implements OnInit {
   tableColumns = [
     { key: 'name', label: 'Nama Lengkap' },
     { key: 'nim', label: 'NIM' },
-    { key: 'major', label: 'Program Studi' }, // <-- KOLOM BARU DITAMBAHKAN
+    { key: 'major', label: 'Program Studi' },
   ];
 
   // Delete Modal State
   showDeleteModal = false;
   selectedStudent: Student | null = null;
   deleteLoading = false;
+
+  // 1. TAMBAHKAN STATE TOAST
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
 
   constructor(
     private studentService: StudentService,
@@ -48,9 +55,6 @@ export class AdminStudentComponent implements OnInit {
     this.loadStudents();
   }
 
-  /**
-   * Load data mahasiswa dari API
-   */
   loadStudents(): void {
     this.loading = true;
     this.studentService.getStudents()
@@ -64,6 +68,7 @@ export class AdminStudentComponent implements OnInit {
         },
         error: (err) => {
           console.error('Gagal memuat data mahasiswa:', err);
+          this.showToast('Gagal memuat data mahasiswa.', 'error');
         }
       });
   }
@@ -80,7 +85,7 @@ export class AdminStudentComponent implements OnInit {
         id: item.id,
         name: item.name,
         nim: item.nim,
-        major: item.major // Pastikan major juga dikirim saat edit
+        major: item.major
       }
     });
   }
@@ -117,11 +122,14 @@ export class AdminStudentComponent implements OnInit {
       )
       .subscribe({
         next: () => {
+          // 2. TAMPILKAN TOAST SUKSES
+          this.showToast('Data mahasiswa berhasil dihapus!', 'success');
           this.loadStudents();
         },
         error: (err) => {
           console.error('Gagal menghapus mahasiswa:', err);
-          alert('Gagal menghapus data mahasiswa.');
+          // 3. TAMPILKAN TOAST ERROR
+          this.showToast('Gagal menghapus data mahasiswa.', 'error');
         }
       });
   }
@@ -129,5 +137,16 @@ export class AdminStudentComponent implements OnInit {
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedStudent = null;
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

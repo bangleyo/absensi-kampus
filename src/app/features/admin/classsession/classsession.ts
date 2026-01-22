@@ -41,6 +41,13 @@ export class ClassSessionComponent implements OnInit {
   selectedClassSession: ClassSession | null = null;
   deleteLoading = false;
 
+  // 1. TAMBAHKAN STATE TOAST
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
+
   constructor(
     private classSessionService: ClassSessionService,
     private qrService: QRService,
@@ -52,9 +59,6 @@ export class ClassSessionComponent implements OnInit {
     this.loadClassSessions();
   }
 
-  /**
-   * Load data sesi kelas dari API
-   */
   loadClassSessions(): void {
     this.loading = true;
     this.classSessionService.getClassSession()
@@ -68,6 +72,7 @@ export class ClassSessionComponent implements OnInit {
         },
         error: (err) => {
           console.error('Gagal memuat sesi kelas:', err);
+          this.showToast('Gagal memuat data.', 'error');
         }
       });
   }
@@ -84,12 +89,9 @@ export class ClassSessionComponent implements OnInit {
     });
   }
 
-  /**
-   * Download QR Code sebagai file PNG
-   */
   downloadQR(item: any): void {
     if (!item.qrToken) {
-      alert('QR Token tidak tersedia.');
+      this.showToast('QR Token tidak tersedia.', 'error');
       return;
     }
 
@@ -98,20 +100,16 @@ export class ClassSessionComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        // Nama file: QR_Code_[NamaMatkul]_[Kode].png
         const safeName = (item.course?.name || 'Session').replace(/[^a-z0-9]/gi, '_');
         link.download = `QR_${safeName}_${item.course?.code || ''}.png`;
-
         document.body.appendChild(link);
         link.click();
-
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
       },
       error: (err) => {
         console.error('Download gagal:', err);
-        alert('Gagal mengunduh QR Code.');
+        this.showToast('Gagal mengunduh QR Code.', 'error');
       }
     });
   }
@@ -129,8 +127,6 @@ export class ClassSessionComponent implements OnInit {
     this.deleteLoading = true;
     this.cdr.detectChanges();
 
-    // Asumsi service memiliki method delete (sesuaikan jika namanya berbeda)
-    // Jika belum ada di service, Anda perlu menambahkannya: deleteClassSession(id)
     this.classSessionService.deleteClassSession(this.selectedClassSession.id)
       .pipe(
         finalize(() => {
@@ -141,12 +137,14 @@ export class ClassSessionComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // Reload data setelah sukses hapus
+          // 2. TAMPILKAN TOAST SUKSES
+          this.showToast('Sesi kelas berhasil dihapus!', 'success');
           this.loadClassSessions();
         },
         error: (err) => {
           console.error('Delete error:', err);
-          alert('Gagal menghapus sesi kelas.');
+          // 3. TAMPILKAN TOAST ERROR
+          this.showToast('Gagal menghapus sesi kelas.', 'error');
         }
       });
   }
@@ -154,5 +152,16 @@ export class ClassSessionComponent implements OnInit {
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedClassSession = null;
+  }
+
+  // 4. HELPER FUNCTION TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

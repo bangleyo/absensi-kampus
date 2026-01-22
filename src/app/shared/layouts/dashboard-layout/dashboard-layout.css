@@ -21,12 +21,6 @@
   /* Sidebar width (280px) */
   margin-left: 280px;
 
-  /* 3. Global Page Padding */
-  /* Ini memberikan jarak "bernapas" yang konsisten untuk semua halaman */
-  padding-right: 24px;
-  padding-bottom: 40px;
-  padding-left: 24px;
-
   /* Animasi Transisi Halus saat Sidebar berubah */
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
 }

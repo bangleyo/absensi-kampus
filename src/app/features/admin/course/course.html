@@ -51,3 +51,9 @@
 
   </div>
 </div>
+
+<div class="toast-popup"
+     [class.show]="toastState.show"
+     [class.error]="toastState.type === 'error'">
+  {{ toastState.message }}
+</div>

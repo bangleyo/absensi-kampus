@@ -8,7 +8,10 @@
     &larr; Kembali
   </button>
 
-  <button class="btn-add" (click)="downloadReport()" [disabled]="loading || attendanceUser.length === 0">
+  <button
+    class="btn-add"
+    (click)="downloadReport()"
+    [disabled]="loading || attendanceUser.length === 0">
     📥 Unduh Laporan (.xlsx)
   </button>
 </div>

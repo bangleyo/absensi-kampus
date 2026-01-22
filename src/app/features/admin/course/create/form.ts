@@ -4,20 +4,19 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-// Services & Models
 import { CourseService } from '../../../../core/services/course.service';
 import { Course } from '../../../../core/models/course.model';
 
 type Mode = 'create' | 'edit';
 
 @Component({
-  selector: 'app-admin-course-form', // Selector lebih spesifik
+  selector: 'app-admin-course-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './form.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',     // Shared Header
-    '../../../../../styles/shared/admin-pages.css' // Shared Form Styles (Pengganti form.css)
+    '../../../../../styles/shared/header.css',
+    '../../../../../styles/shared/admin-pages.css'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,6 +27,13 @@ export class CreateCourseComponent implements OnInit {
   mode: Mode = 'create';
   isLoading = false;
 
+  // 1. TAMBAHKAN STATE TOAST
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
+
   constructor(
     private cdr: ChangeDetectorRef,
     private courseService: CourseService,
@@ -36,7 +42,6 @@ export class CreateCourseComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check Query Params untuk Mode Edit
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
         this.mode = 'edit';
@@ -49,8 +54,6 @@ export class CreateCourseComponent implements OnInit {
       }
     });
   }
-
-  // --- ACTIONS ---
 
   onNameCodeSubmit(form: NgForm): void {
     if (form.invalid) return;
@@ -72,23 +75,26 @@ export class CreateCourseComponent implements OnInit {
 
   private addCourse(): void {
     this.isLoading = true;
-    this.cdr.detectChanges(); // Update UI disable button
+    this.cdr.detectChanges();
 
     this.courseService.addCourse(this.formData.name, this.formData.code)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
+      .pipe(finalize(() => {
+        // Hapus finalize loading=false disini, kita handle manual agar tombol tetap disabled saat delay redirect
+        // Kecuali error
+      }))
       .subscribe({
         next: () => {
-          // Redirect setelah sukses
-          this.router.navigate(['/admin/course']);
+          // 2. SUKSES: Tampilkan Toast -> Delay -> Redirect
+          this.showToast('Berhasil menambahkan matakuliah!', 'success');
+          setTimeout(() => {
+            this.router.navigate(['/admin/course']);
+          }, 1500); // Delay 1.5 detik agar user sempat baca
         },
         error: (err) => {
           console.error('Gagal menambah course:', err);
-          alert('Gagal menambah data. Silakan coba lagi.'); // Bisa diganti Toast
+          this.showToast('Gagal menambah data.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -98,20 +104,32 @@ export class CreateCourseComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.courseService.updateCourse(this.formData.id, this.formData.name, this.formData.code)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: () => {
-          this.router.navigate(['/admin/course']);
+          // 3. SUKSES UPDATE
+          this.showToast('Berhasil memperbarui matakuliah!', 'success');
+          setTimeout(() => {
+            this.router.navigate(['/admin/course']);
+          }, 1500);
         },
         error: (err) => {
           console.error('Gagal update course:', err);
-          alert('Gagal memperbarui data.');
+          this.showToast('Gagal memperbarui data.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    // Auto hide toast setelah 3 detik (jika user tidak jadi redirect karena error)
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

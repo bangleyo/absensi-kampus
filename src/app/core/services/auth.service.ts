@@ -1,45 +1,86 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
-import {environment} from '../../environments/environment';
+import { Router } from '@angular/router';
+import { tap } from 'rxjs';
+import { environment } from '../../environments/environment';
+
+export interface UserSession {
+  username: string;
+  role: 'ADMIN' | 'STUDENT' | 'LECTURER';
+  name: string;
+  nim?: string;
+  major?: string; // Tambahkan major jika perlu
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl || 'http://localhost:9191/api/v1';
-  private tokenKey = 'token';
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private readonly apiUrl = `${environment.apiUrl || 'http://localhost:9191/api/v1'}/auth`;
+  private readonly tokenKey = 'token';
+  private readonly userKey = 'userSession';
 
-  constructor(private http: HttpClient) {}
+  // Signal untuk reaktif update UI (TopBar, dll)
+  readonly currentUser = signal<UserSession | null>(this.getUserFromStorage());
 
+  constructor(private http: HttpClient, private router: Router) {}
 
-  login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, credentials).pipe(
-      tap((response: any) => {
-        if (response.token) {
-          console.log('token', response.token);
-          sessionStorage.setItem(this.tokenKey, response.token);
-          this.isAuthenticatedSubject.next(true);
+  login(credentials: { username: string; password: string }) {
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response) => {
+        // Asumsi response backend: { status: 'success', data: { token: '...', role: '...', ... } }
+        if (response.status === 'success' && response.data) {
+          this.saveSession(response.data);
         }
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.isAuthenticatedSubject.next(false);
+    sessionStorage.clear();
+    this.currentUser.set(null);
+    this.router.navigate(['/login']);
+  }
+
+  // --- Helper Methods ---
+
+  private saveSession(data: any): void {
+    // 1. Simpan Token
+    sessionStorage.setItem(this.tokenKey, data.token);
+
+    // 2. Susun Data User
+    const user: UserSession = {
+      username: data.username,
+      role: data.role,
+      name: data.name,
+      nim: data.nim,
+      major: data.major
+    };
+
+    // 3. Simpan Session & Update Signal
+    sessionStorage.setItem(this.userKey, JSON.stringify(user));
+    this.currentUser.set(user);
   }
 
   isAuthenticated(): boolean {
-    return this.hasToken();
-  }
-
-  hasToken(): boolean {
     return !!sessionStorage.getItem(this.tokenKey);
   }
 
-  get isAuthenticated$() {
-    return this.isAuthenticatedSubject.asObservable();
+  getToken(): string | null {
+    return sessionStorage.getItem(this.tokenKey);
+  }
+
+  getUser(): UserSession | null {
+    return this.currentUser();
+  }
+
+  hasRole(requiredRole: string): boolean {
+    const user = this.getUser();
+    return user?.role === requiredRole;
+  }
+
+  private getUserFromStorage(): UserSession | null {
+    const userStr = sessionStorage.getItem(this.userKey);
+    return userStr ? JSON.parse(userStr) : null;
   }
 }

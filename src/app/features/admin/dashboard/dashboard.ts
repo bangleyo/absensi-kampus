@@ -12,6 +12,7 @@ import { ClassSession } from '../../../core/models/class_session.model';
   styleUrls: [
     '../../../../styles/shared/header.css',
     '../../../../styles/shared/course-card.css',
+    '../../../../styles/shared/admin-pages.css'
   ],
   standalone: true,
   imports: [CommonModule],

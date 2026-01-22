@@ -1,21 +1,24 @@
-import {authGuard} from './core/services/auth.guard';
-import {RegisterComponent} from './features/register/register';
-import {LoginComponent} from './features/login/login';
 import {Routes} from '@angular/router';
+import {authGuard} from './core/services/auth.guard';
+
+// Layouts
 import {DashboardLayoutComponent} from './shared/layouts/dashboard-layout/dashboard-layout';
+
+// Auth Pages
+import {LoginComponent} from './features/login/login';
+import {RegisterComponent} from './features/register/register';
+
+// Student/General Pages
 import {DashboardComponent} from './features/dashboard/dashboard';
 import {CourseComponent} from './features/course/course';
 import {ProfileComponent} from './features/profile/profile';
+
+// Admin Pages
 import {AdminDashboardComponent} from './features/admin/dashboard/dashboard';
 import {AdminCourseComponent} from './features/admin/course/course';
 import {CreateCourseComponent} from './features/admin/course/create/form';
-import {ClassSessionComponent} from './features/admin/classsession/classsession';
-import {CreateClassSessionComponent} from './features/admin/classsession/create/form';
 import {AdminStudentComponent} from './features/admin/student/student';
-import {StudentFormComponent} from './features/admin/student/form/form';
-import {AdminStudentCourseComponent} from './features/admin/student/course/student_course';
-import {CreateStudentCourseComponent} from './features/admin/student/course/create/create';
-import {AdminDashboardAttendanceComponent} from './features/admin/dashboard/attendance/attendance';
+import {roleGuard} from './core/services/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -24,52 +27,33 @@ export const routes: Routes = [
   {
     path: '',
     component: DashboardLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard], // Guard Dasar (Cek Login)
     children: [
+      // HALAMAN UMUM (Bisa diakses Admin & Student)
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'course', component: CourseComponent },
       { path: 'profile', component: ProfileComponent },
+
+      // HALAMAN KHUSUS STUDENT
       {
-        path: 'admin/dashboard',
-        component: AdminDashboardComponent,
+        path: 'course',
+        component: CourseComponent,
+        canActivate: [roleGuard('STUDENT')] // Hanya Student
       },
+
+      // HALAMAN KHUSUS ADMIN (Proteksi Ketat)
       {
-        path: 'admin/dashboard/attendance/:id',
-        component: AdminDashboardAttendanceComponent,
+        path: 'admin',
+        canActivate: [roleGuard('ADMIN')], // Cek apakah ADMIN?
+        children: [
+          { path: 'dashboard', component: AdminDashboardComponent },
+          { path: 'course', component: AdminCourseComponent },
+          { path: 'course/form', component: CreateCourseComponent },
+          // ... route admin lainnya
+          { path: 'student', component: AdminStudentComponent },
+        ]
       },
-      {
-        path: 'admin/course',
-        component: AdminCourseComponent,
-      },
-      {
-        path: 'admin/course/form',
-        component: CreateCourseComponent,
-      },
-      {
-        path: 'admin/class-session',
-        component: ClassSessionComponent,
-      },
-      {
-        path: 'admin/class-session/form',
-        component: CreateClassSessionComponent,
-      },
-      {
-        path: 'admin/student',
-        component: AdminStudentComponent,
-      },
-      {
-        path: 'admin/student/form',
-        component: StudentFormComponent,
-      },
-      {
-        path: 'admin/student/course',
-        component: AdminStudentCourseComponent,
-      },
-      {
-        path: 'admin/student/course/create',
-        component: CreateStudentCourseComponent,
-      },
-      { path: 'admin/profile', component: ProfileComponent },
+
+      // Fallback
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }

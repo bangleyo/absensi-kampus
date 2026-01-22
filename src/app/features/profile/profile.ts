@@ -21,7 +21,8 @@ type FormStatus = 'idle' | 'loading' | 'success' | 'error';
   templateUrl: './profile.html',
   styleUrls: [
     '../../../styles/shared/header.css', // Gunakan Shared Header Style
-    './profile.css'
+    './profile.css',
+    '../../../styles/shared/admin-pages.css'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,

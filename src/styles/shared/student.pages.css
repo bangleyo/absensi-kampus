@@ -1,0 +1,117 @@
+/* ==========================================================================
+   src/styles/shared/student-pages.css
+   SHARED STYLES FOR STUDENT PAGES
+   Contains: Layout Constraints, Grids, Loaders, Toasts
+   ========================================================================== */
+
+/* --- 1. PAGE LAYOUT (Standardized) --- */
+/* Mengunci lebar halaman agar tidak melebihi layar HP (responsive fix) */
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* Padding dihitung di dalam lebar */
+
+  /* Padding Konsisten (Desktop) */
+  padding: 20px;
+  overflow-x: hidden; /* Mencegah scroll horizontal pada body page */
+}
+
+/* --- 2. HEADER SPACING --- */
+/* BAGIAN INI DIHAPUS agar menggunakan style dari 'header.css' */
+/* (Style .dashboard-header dan h2 dihapus dari sini untuk menghindari konflik) */
+
+/* --- 3. GRID LAYOUT (Untuk Card Matkul/Menu) --- */
+.courses-grid {
+  display: grid;
+  /* Responsif: Minimal 300px, sisanya mengisi ruang (1fr) */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* --- 4. UTILITIES (Loading & Empty States) --- */
+.loading, .no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+  font-size: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  margin-top: 20px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(102, 126, 234, 0.3);
+  border-radius: 50%;
+  border-top-color: #667eea;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- 5. TOAST NOTIFICATIONS (Student Theme) --- */
+.toast-popup {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2000;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: #f1f8f4;
+  color: #1b5e20;
+  border-left: 6px solid #2e7d32;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Animasi Masuk */
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-popup.error {
+  background: #fdecea;
+  color: #c62828;
+  border-left-color: #d32f2f;
+}
+
+.toast-popup.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* --- 6. RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 768px) {
+  :host {
+    /* Padding Mobile: Disamakan dengan Admin & Topbar */
+    padding: 15px;
+  }
+
+  /* Font size header tidak perlu di-override disini jika header.css sudah responsif,
+     tapi jika perlu penyesuaian mobile khusus student, bisa ditambahkan kembali: */
+  /* .dashboard-header h2 {
+    font-size: 1.5rem;
+  }
+  */
+
+  .courses-grid {
+    /* Di HP, paksa 1 kolom agar kartu lebar penuh & rapi */
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .toast-popup {
+    /* Di HP, toast full width di bawah agar mudah dibaca */
+    left: 20px;
+    right: 20px;
+    text-align: center;
+  }
+}

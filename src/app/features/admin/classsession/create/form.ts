@@ -4,7 +4,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-// Services & Models
 import { ClassSessionService } from '../../../../core/services/class_session.service';
 import { CourseService } from '../../../../core/services/course.service';
 import { Course } from '../../../../core/models/course.model';
@@ -13,13 +12,13 @@ import { ClassSessionForm } from '../../../../core/models/class_session_form.mod
 type Mode = 'create' | 'edit';
 
 @Component({
-  selector: 'app-admin-class-session-form', // Naming convention yang lebih baik
+  selector: 'app-admin-class-session-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './form.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',     // Shared Header
-    '../../../../../styles/shared/admin-pages.css' // Shared Styles (Gantikan form.css)
+    '../../../../../styles/shared/header.css',
+    '../../../../../styles/shared/admin-pages.css'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -41,7 +40,14 @@ export class CreateClassSessionComponent implements OnInit {
 
   courses: Course[] = [];
   mode: Mode = 'create';
-  isLoading: boolean = false; // Fix: Default false, true saat action
+  isLoading: boolean = false;
+
+  // 1. TAMBAHKAN STATE TOAST
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -56,29 +62,25 @@ export class CreateClassSessionComponent implements OnInit {
     this.loadParams();
   }
 
-  // --- LOCATION LOGIC ---
-
+  // ... (getCurrentLocation, loadDataCourses, loadParams, formatDateForInput TETAP SAMA) ...
   getCurrentLocation(): void {
     if (!navigator.geolocation) {
       alert('Browser Anda tidak mendukung fitur lokasi.');
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         this.formData.latitude = pos.coords.latitude;
         this.formData.longitude = pos.coords.longitude;
         this.cdr.detectChanges();
-        // Optional: Toast success here
+        this.showToast('Lokasi berhasil diambil!', 'success'); // Optional feedback
       },
       () => {
-        alert('Gagal mengambil lokasi. Pastikan izin lokasi (GPS) aktif.');
+        this.showToast('Gagal mengambil lokasi. Aktifkan GPS.', 'error');
       },
       { enableHighAccuracy: true }
     );
   }
-
-  // --- DATA LOADING ---
 
   private loadDataCourses(): void {
     this.courseService.getCourses().subscribe(res => {
@@ -90,7 +92,7 @@ export class CreateClassSessionComponent implements OnInit {
   private loadParams(): void {
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
-        this.isLoading = true; // Show loading state while fetching data
+        this.isLoading = true;
         this.classSessionService.getClassSessionById(params['id'])
           .pipe(finalize(() => {
             this.isLoading = false;
@@ -100,16 +102,10 @@ export class CreateClassSessionComponent implements OnInit {
             next: (res) => {
               if (res.status === 'success') {
                 this.mode = 'edit';
-                // Spread object untuk memastikan mapping data benar
                 this.formData = { ...this.formData, ...res.data };
-
-                // PENTING: ID Course dari response biasanya object, form butuh ID
                 if (res.data.course) {
                   this.formData.courseId = res.data.course.id;
                 }
-
-                // Formatting DateTime string agar cocok dengan <input type="datetime-local">
-                // Format yang diterima: "YYYY-MM-DDTHH:mm"
                 if (this.formData.startTime) this.formData.startTime = this.formatDateForInput(this.formData.startTime);
                 if (this.formData.endTime) this.formData.endTime = this.formatDateForInput(this.formData.endTime);
               }
@@ -120,11 +116,7 @@ export class CreateClassSessionComponent implements OnInit {
     });
   }
 
-  /**
-   * Helper untuk konversi format tanggal dari API ke Input HTML
-   */
   private formatDateForInput(dateStr: string): string {
-    // Jika format dari API sudah ISO string (2024-02-20T10:00:00), ambil 16 karakter pertama
     if (!dateStr) return '';
     return new Date(dateStr).toISOString().slice(0, 16);
   }
@@ -132,7 +124,10 @@ export class CreateClassSessionComponent implements OnInit {
   // --- FORM ACTIONS ---
 
   onNameCodeSubmit(form: NgForm): void {
-    if (form.invalid || !this.formData.latitude) return;
+    if (form.invalid || !this.formData.latitude) {
+      if (!this.formData.latitude) this.showToast('Lokasi wajib diambil!', 'error');
+      return;
+    }
     this.mode === 'create' ? this.addClassSession() : this.updateClassSession();
   }
 
@@ -150,20 +145,26 @@ export class CreateClassSessionComponent implements OnInit {
     this.router.navigate(['/admin/class-session']);
   }
 
-  // --- API CALLS ---
+  // --- API CALLS DENGAN TOAST & DELAY ---
 
   private addClassSession(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
     this.classSessionService.createClassSession(this.formData)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
       .subscribe({
-        next: () => this.back(),
-        error: () => alert('Terjadi kesalahan saat menyimpan data.')
+        next: () => {
+          // Sukses: Toast -> Delay -> Redirect
+          this.showToast('Berhasil membuat sesi kelas!', 'success');
+          setTimeout(() => {
+            this.back();
+          }, 1500);
+        },
+        error: () => {
+          this.showToast('Terjadi kesalahan saat menyimpan data.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
       });
   }
 
@@ -172,13 +173,30 @@ export class CreateClassSessionComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.classSessionService.updateClassSession(this.formData)
-      .pipe(finalize(() => {
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }))
       .subscribe({
-        next: () => this.back(),
-        error: () => alert('Terjadi kesalahan saat memperbarui data.')
+        next: () => {
+          // Sukses: Toast -> Delay -> Redirect
+          this.showToast('Data sesi kelas diperbarui!', 'success');
+          setTimeout(() => {
+            this.back();
+          }, 1500);
+        },
+        error: () => {
+          this.showToast('Terjadi kesalahan saat memperbarui data.', 'error');
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
       });
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

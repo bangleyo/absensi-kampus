@@ -2,35 +2,40 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChil
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+// Hapus finalize dari import karena kita handle manual loadingnya untuk delay redirect
+// import { finalize } from 'rxjs';
 
-// Services & Models
 import { CourseService } from '../../../../../core/services/course.service';
 import { StudentCourseService } from '../../../../../core/services/student_course.service';
 import { Course } from '../../../../../core/models/course.model';
 
 @Component({
-  selector: 'app-admin-student-course-create', // Selector diperbaiki
+  selector: 'app-admin-student-course-create',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './create.html',
   styleUrls: [
-    '../../../../../../styles/shared/header.css',      // Shared Header
-    '../../../../../../styles/shared/admin-pages.css'  // Shared Admin Form Styles
+    '../../../../../../styles/shared/header.css',
+    '../../../../../../styles/shared/admin-pages.css'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateStudentCourseComponent implements OnInit {
   @ViewChild('enrollForm') enrollForm!: NgForm;
 
-  // Data State
   courses: Course[] = [];
   selectedCourseId: number | null = null;
   isLoading = false;
 
-  // Student Context
   nim: string = '';
   name: string = '';
+
+  // 1. STATE TOAST MANUAL
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -41,19 +46,16 @@ export class CreateStudentCourseComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1. Ambil konteks mahasiswa (NIM & Nama)
     this.route.queryParams.subscribe(params => {
       if (params['nim']) {
         this.nim = params['nim'];
         this.name = params['name'];
         this.cdr.detectChanges();
       } else {
-        // Jika akses langsung tanpa param, kembalikan ke list student
         this.router.navigate(['/admin/student']);
       }
     });
 
-    // 2. Load daftar semua matakuliah
     this.loadCourses();
   }
 
@@ -81,30 +83,45 @@ export class CreateStudentCourseComponent implements OnInit {
     this.cdr.detectChanges();
 
     this.studentCourseService.enrollCourse(this.nim, this.selectedCourseId!)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe({
         next: () => {
-          this.back(); // Sukses -> Kembali ke list matkul mahasiswa
+          // 2. SUKSES: Toast -> Delay -> Redirect
+          this.showToast('Berhasil menambahkan matakuliah!', 'success');
+
+          // Delay agar user sempat baca notifikasi
+          setTimeout(() => {
+            this.back();
+          }, 1500);
         },
         error: (err) => {
           console.error('Gagal enroll course:', err);
-          alert('Gagal menambahkan matakuliah. Mungkin sudah diambil?');
+          // 3. ERROR: Toast
+          this.showToast('Gagal menambahkan matakuliah. Mungkin sudah diambil?', 'error');
+
+          // Matikan loading manual karena error
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
 
   back(): void {
-    // Kembali ke halaman detail matakuliah mahasiswa tersebut
     this.router.navigate(['/admin/student/course'], {
       queryParams: {
         nim: this.nim,
         name: this.name
       }
     });
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

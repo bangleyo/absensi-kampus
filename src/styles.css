@@ -22,10 +22,3 @@ body {
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
-
-/* --- Page Container Limiter (Opsional) --- */
-/* Membatasi lebar konten agar enak dibaca di layar lebar */
-.page-container {
-  max-width: 1400px;
-  margin: 0 auto;
-}

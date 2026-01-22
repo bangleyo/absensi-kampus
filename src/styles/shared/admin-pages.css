@@ -6,8 +6,14 @@
 
 :host {
   display: block;
-  /* Animasi transisi jika ada perubahan margin dari layout utama */
-  transition: all 0.3s ease;
+  /* PERBAIKAN UTAMA: */
+  width: 100%;
+  max-width: 100%; /* Mengunci agar tidak pernah lebih lebar dari layar/parent */
+  box-sizing: border-box; /* Padding dihitung di dalam lebar, bukan menambah lebar */
+
+  /* Samakan padding ini dengan margin/padding Topbar agar sejajar */
+  padding: 20px;
+  overflow-x: hidden; /* Mencegah scroll pada body page, memaksa scroll di table */
 }
 
 /* --------------------------------------------------------------------------
@@ -17,19 +23,26 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+
+  /* Agar tombol turun ke bawah jika layar sangat sempit (opsional) */
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* Primary Add Button (Gradient) */
 .btn-add {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 10px 20px;
+  padding: 10px 24px; /* Sedikit diperlebar agar gagah */
   border-radius: 8px;
   border: none;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
   transition: transform 0.2s;
+
+  /* Text tidak boleh wrap */
+  white-space: nowrap;
 }
 
 .btn-add:hover {
@@ -48,6 +61,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-outline-blue:hover, .btn-download:hover {
@@ -65,12 +79,38 @@
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-outline-purple:hover, .btn-course:hover {
   background-color: #e1bee7;
   transform: translateY(-1px);
 }
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE MOBILE (Alignment Fixes)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  :host {
+    /* Samakan dengan margin navbar mobile di topbar.css */
+    padding: 15px;
+  }
+
+  .page-actions {
+    /* Di HP, tombol mungkin perlu full width atau stack */
+    justify-content: stretch;
+  }
+
+  .btn-add {
+    /* Opsional: Tombol Add jadi full width di HP agar mudah ditekan */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* ... (Kode lainnya seperti Modal, Toast, Form tetap sama, tidak perlu diubah) ... */
 
 /* --------------------------------------------------------------------------
    2. DELETE CONFIRMATION MODAL
@@ -190,7 +230,7 @@
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  max-width: 600px; /* Lebar optimal untuk form admin */
+  max-width: 600px;
   margin-top: 20px;
 }
 
@@ -224,6 +264,7 @@
   color: #1e293b;
   transition: all 0.2s;
   background-color: #fff;
+  box-sizing: border-box; /* Ensure padding doesn't overflow */
 }
 
 .form-input:focus {
@@ -245,7 +286,6 @@
   flex-direction: column;
 }
 
-/* Button Group di Form */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -255,7 +295,6 @@
   border-top: 1px solid #f1f5f9;
 }
 
-/* Tombol Secondary (Batal/Reset) */
 .btn-secondary {
   background: #f1f5f9;
   color: #475569;
@@ -272,7 +311,6 @@
   color: #1e293b;
 }
 
-/* Responsive Mobile */
 @media (max-width: 600px) {
   .form-actions {
     flex-direction: column-reverse;
@@ -281,20 +319,14 @@
     width: 100%;
   }
 }
-/* ... (Kode sebelumnya) ... */
 
-/* --------------------------------------------------------------------------
-   6. FORM UTILITIES (Grid & Extras)
-   -------------------------------------------------------------------------- */
-
-/* Grid 2 Kolom untuk Input Pendek (Waktu, dll) */
+/* 6. FORM UTILITIES (Grid & Extras) */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* Styling Khusus Box Lokasi/GPS */
 .location-box {
   background-color: #f8fafc;
   border: 1px dashed #cbd5e1;
@@ -322,10 +354,28 @@
   color: #0f172a;
 }
 
-/* Responsive adjustment for form row */
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
   }
+}
+
+/* DISABLED STATE */
+.btn-add:disabled,
+.btn-primary:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  border: 1px solid #cbd5e1;
+}
+
+.btn-outline-blue:disabled,
+.btn-secondary:disabled {
+  background-color: #f1f5f9;
+  color: #cbd5e1;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
 }

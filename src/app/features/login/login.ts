@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs'; // Import finalize untuk handle loading state
+
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -37,9 +38,9 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.errorMessage = 'Mohon isi email dan kata sandi dengan benar.';
+      this.errorMessage = 'Mohon isi username dan kata sandi dengan benar.';
       return;
     }
 
@@ -47,54 +48,61 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (res) => {
-        this.isLoading = false;
-        this.successMessage = 'Login Berhasil!';
+    const { username, password, remember } = this.loginForm.value;
 
-        // 1. Simpan Data dari format: res.data.token
-        if (res.status === 'success' && res.data) {
-
-          const expiryTime = Date.now() + (30 * 60 * 1000);
-          const sessionData = {
-            role: res.data.role,
-            username : res.data.username,
-            name : res.data.name,
-            nim : res.data.nim,
-            major : res.data.major,
-            expiry: expiryTime
-          };
-          sessionStorage.setItem('nim', res.data.nim);
-          sessionStorage.setItem('token', res.data.token);
-          sessionStorage.setItem('userSession', JSON.stringify(sessionData));
+    this.authService.login({ username, password })
+      .pipe(
+        finalize(() => {
+          // finalize tidak digunakan untuk set isLoading = false disini
+          // karena kita mau loading tetap jalan saat delay redirect sukses
+          // kita handle manual di error block
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.handleSuccess(username, remember);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = err.error?.message || 'Username atau kata sandi salah.';
+          this.loginForm.get('password')?.reset();
         }
-
-        if (this.loginForm.value.remember) {
-          localStorage.setItem('savedUsername', this.loginForm.value.username); // Pastikan key sesuai dengan formControlName
-        } else {
-          localStorage.removeItem('savedUsername');
-        }
-
-        setTimeout(() => {
-          const role = res.data.role;
-          if (role === 'ADMIN' || role === 'admin') {
-            this.router.navigate(['/admin/dashboard']);  // Admin dashboard
-          } else if (role === 'STUDENT' || role === 'student') {
-            this.router.navigate(['/dashboard']); // Student dashboard
-          } else {
-            // Default fallback
-            this.router.navigate(['/dashboard']);
-          }
-        }, 1500);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Email atau kata sandi salah.';
-        this.loginForm.get('password')?.reset();
-      }
-    });
+      });
   }
-}
 
-export class Login {
+  private handleSuccess(username: string, remember: boolean): void {
+    this.successMessage = 'Login Berhasil! Mengalihkan...';
+
+    // Handle "Remember Me"
+    if (remember) {
+      localStorage.setItem('savedUsername', username);
+    } else {
+      localStorage.removeItem('savedUsername');
+    }
+
+    // Delay sedikit untuk UX, lalu redirect sesuai Role
+    setTimeout(() => {
+      this.navigateByRole();
+    }, 1500);
+  }
+
+  private navigateByRole(): void {
+    const user = this.authService.getUser();
+    const role = user?.role?.toUpperCase(); // Jaga-jaga case sensitive
+
+    switch (role) {
+      case 'ADMIN':
+        this.router.navigate(['/admin/dashboard']);
+        break;
+      case 'STUDENT':
+        this.router.navigate(['/dashboard']);
+        break;
+      default:
+        this.router.navigate(['/dashboard']); // Fallback route
+        break;
+    }
+
+    // Matikan loading setelah navigasi dimulai
+    this.isLoading = false;
+  }
 }

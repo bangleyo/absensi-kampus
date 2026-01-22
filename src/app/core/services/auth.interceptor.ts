@@ -1,12 +1,27 @@
-import {HttpHandlerFn, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
-  const token = sessionStorage.getItem('token');
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.getToken();
+
+  let authReq = req;
+
   if (token) {
-    const authReq = req.clone({
+    authReq = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
-    return next(authReq);
   }
-  return next(req);
+
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      // JIKA TOKEN EXPIRED ATAU TIDAK VALID (401)
+      if (error.status === 401) {
+        authService.logout(); // Tendang ke login
+      }
+      return throwError(() => error);
+    })
+  );
 };

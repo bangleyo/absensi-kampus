@@ -13,7 +13,7 @@ import { ClassSession } from '../../core/models/class_session.model';
     '../../../styles/shared/header.css',
     '../../../styles/shared/qr-modal.css',
     '../../../styles/shared/course-card.css',
-    './dashboard.css'
+    '../../../styles/shared/student.pages.css',
   ],
   standalone: true,
   imports: [CommonModule]

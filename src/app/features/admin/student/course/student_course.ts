@@ -10,12 +10,12 @@ import { StudentCourseService } from '../../../../core/services/student_course.s
 import { StudentCourse } from '../../../../core/models/student_course.model';
 
 @Component({
-  selector: 'app-admin-student-course', // Selector diperbaiki (unik)
+  selector: 'app-admin-student-course',
   templateUrl: './student_course.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',      // Header Style
-    '../../../../shared/table/table.css',           // Table Style
-    '../../../../../styles/shared/admin-pages.css'  // Shared Admin Style
+    '../../../../../styles/shared/header.css',
+    '../../../../shared/table/table.css',
+    '../../../../../styles/shared/admin-pages.css'
   ],
   standalone: true,
   imports: [CommonModule, FormsModule, SharedTableComponent],
@@ -23,7 +23,7 @@ import { StudentCourse } from '../../../../core/models/student_course.model';
 })
 export class AdminStudentCourseComponent implements OnInit {
   // Data State
-  studentCourses: StudentCourse[] = []; // Renamed to plural
+  studentCourses: StudentCourse[] = [];
   loading = true;
 
   // Student Info from Params
@@ -41,6 +41,13 @@ export class AdminStudentCourseComponent implements OnInit {
   selectedStudentCourse: any = null;
   deleteLoading = false;
 
+  // 1. STATE TOAST MANUAL
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
+
   constructor(
     private studentCourseService: StudentCourseService,
     private router: Router,
@@ -52,9 +59,6 @@ export class AdminStudentCourseComponent implements OnInit {
     this.initData();
   }
 
-  /**
-   * Inisialisasi data berdasarkan Query Params
-   */
   private initData(): void {
     this.route.queryParams.subscribe(params => {
       if (params['nim'] && params['name']) {
@@ -62,7 +66,6 @@ export class AdminStudentCourseComponent implements OnInit {
         this.name = params['name'];
         this.loadCourses();
       } else {
-        // Jika tidak ada param NIM, kembali ke list mahasiswa
         this.back();
       }
     });
@@ -81,6 +84,7 @@ export class AdminStudentCourseComponent implements OnInit {
         },
         error: (err) => {
           console.error('Gagal memuat matakuliah mahasiswa:', err);
+          this.showToast('Gagal memuat data.', 'error');
         }
       });
   }
@@ -123,12 +127,14 @@ export class AdminStudentCourseComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // Reload data setelah hapus berhasil
+          // 2. SUKSES: Tampilkan Toast
+          this.showToast('Matakuliah berhasil dihapus dari KRS!', 'success');
           this.loadCourses();
         },
         error: (err) => {
           console.error('Gagal menghapus matakuliah:', err);
-          alert('Gagal menghapus data.');
+          // 3. ERROR: Tampilkan Toast
+          this.showToast('Gagal menghapus data.', 'error');
         }
       });
   }
@@ -136,5 +142,16 @@ export class AdminStudentCourseComponent implements OnInit {
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedStudentCourse = null;
+  }
+
+  // 4. HELPER TOAST
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges();
+    }, 3000);
   }
 }

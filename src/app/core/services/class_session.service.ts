@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import {ClassSession} from '../models/class_session.model';
-import {ClassSessionForm} from '../models/class_session_form.model';
+import { ClassSession } from '../models/class_session.model';
+import { ClassSessionForm } from '../models/class_session_form.model';
 
 interface ApiResponse {
   status: string;
@@ -12,7 +12,7 @@ interface ApiResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ClassSessionService {
-  private apiUrl = environment.apiUrl || 'http://localhost:9191/api/v1';
+  private readonly apiUrl = `${environment.apiUrl || 'http://localhost:9191/api/v1'}`;
 
   constructor(private http: HttpClient) {}
 
@@ -32,42 +32,42 @@ export class ClassSessionService {
     return this.http.get<ApiResponse>(`${this.apiUrl}/class_session/${id}`);
   }
 
-  createClassSession(classSessionForm: ClassSessionForm): Observable<any> {
+  createClassSession(form: ClassSessionForm): Observable<any> {
+    // Mapping manual untuk memastikan payload bersih
     const body = {
-      'courseId': classSessionForm.courseId,
-      'startTime': classSessionForm.startTime,
-      'endTime': classSessionForm.endTime,
-      'latitude': classSessionForm.latitude,
-      'longitude': classSessionForm.longitude,
-      'lecturer': classSessionForm.lecturer,
-      'place': classSessionForm.place,
-    }
-    return this.http.post<ApiResponse>(`${this.apiUrl}/class_session`, body);
-  }
-
-  updateClassSession(classSessionForm: ClassSessionForm): Observable<any> {
-    const body = {
-      'startTime': classSessionForm.startTime,
-      'endTime': classSessionForm.endTime,
-      'latitude': classSessionForm.latitude,
-      'longitude': classSessionForm.longitude,
-      'lecturer': classSessionForm.lecturer,
-      'place': classSessionForm.place,
-    }
-    return this.http.put<ApiResponse>(`${this.apiUrl}/class_session/${classSessionForm.id}`, body);
-  }
-
-  markAttendance(sessionId: number, lat: number, lng: number, qrCode: string): Observable<any> {
-    const body = {
-      sessionId: sessionId,
-      latitude: lat,
-      longitude: lng,
-      qrToken: qrCode
+      courseId: form.courseId,
+      startTime: form.startTime,
+      endTime: form.endTime,
+      latitude: form.latitude,
+      longitude: form.longitude,
+      lecturer: form.lecturer,
+      place: form.place,
     };
-    return this.http.post(`${this.apiUrl}/attendance/submit`, body);
+    return this.http.post(`${this.apiUrl}/class_session`, body);
+  }
+
+  updateClassSession(form: ClassSessionForm): Observable<any> {
+    const body = {
+      startTime: form.startTime,
+      endTime: form.endTime,
+      latitude: form.latitude,
+      longitude: form.longitude,
+      lecturer: form.lecturer,
+      place: form.place,
+    };
+    return this.http.put(`${this.apiUrl}/class_session/${form.id}`, body);
   }
 
   deleteClassSession(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/attendance/${id}`);
+    return this.http.delete(`${this.apiUrl}/class_session/${id}`);
+  }
+
+  markAttendance(sessionId: number, lat: number, lng: number, qrToken: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/attendance/submit`, {
+      sessionId,
+      latitude: lat,
+      longitude: lng,
+      qrToken
+    });
   }
 }
