@@ -1,10 +1,9 @@
-import { ChangeDetectorRef, Component, HostBinding, OnInit, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {ChangeDetectorRef, Component, OnInit, Signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-// Models & Services
-import { StudentCourse } from '../../core/models/student_course.model';
-import { StudentCourseService } from '../../core/services/student_course.service';
-import { LayoutService } from '../../core/services/layout.service'; // Wajib untuk responsivitas layout
+import {StudentCourse} from '../../core/models/student_course.model';
+import {StudentCourseService} from '../../core/services/student_course.service';
+import {LayoutService} from '../../core/services/layout.service'; // Wajib untuk responsivitas layout
 
 @Component({
   selector: 'app-course',
@@ -18,11 +17,8 @@ import { LayoutService } from '../../core/services/layout.service'; // Wajib unt
   imports: [CommonModule]
 })
 export class CourseComponent implements OnInit {
-  // --- Layout State ---
-  // Signal untuk mendeteksi perubahan sidebar dari LayoutService
   isSidebarCollapsed: Signal<boolean>;
 
-  // --- Data Properties ---
   studentCourses: StudentCourse[] = [];
   isLoading: boolean = true; // Renamed from 'loading' to standard 'isLoading'
 
@@ -33,8 +29,6 @@ export class CourseComponent implements OnInit {
   ) {
     this.isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
   }
-
-  // --- Lifecycle Hooks ---
 
   ngOnInit(): void {
     this.fetchEnrolledCourses();
@@ -55,7 +49,6 @@ export class CourseComponent implements OnInit {
       error: (err) => {
         console.error('Failed to load courses:', err);
         this.isLoading = false;
-        // Opsional: Tambahkan logika toast error di sini
       }
     });
   }

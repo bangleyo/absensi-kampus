@@ -2,9 +2,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChil
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-// Hapus finalize dari import karena kita handle manual loadingnya untuk delay redirect
-// import { finalize } from 'rxjs';
-
 import { CourseService } from '../../../../../core/services/course.service';
 import { StudentCourseService } from '../../../../../core/services/student_course.service';
 import { Course } from '../../../../../core/models/course.model';
@@ -30,7 +27,6 @@ export class CreateStudentCourseComponent implements OnInit {
   nim: string = '';
   name: string = '';
 
-  // 1. STATE TOAST MANUAL
   toastState = {
     show: false,
     message: '',
@@ -71,8 +67,6 @@ export class CreateStudentCourseComponent implements OnInit {
     });
   }
 
-  // --- ACTIONS ---
-
   onSubmit(form: NgForm): void {
     if (form.invalid || !this.selectedCourseId) return;
     this.addCourse();
@@ -85,20 +79,14 @@ export class CreateStudentCourseComponent implements OnInit {
     this.studentCourseService.enrollCourse(this.nim, this.selectedCourseId!)
       .subscribe({
         next: () => {
-          // 2. SUKSES: Toast -> Delay -> Redirect
           this.showToast('Berhasil menambahkan matakuliah!', 'success');
-
-          // Delay agar user sempat baca notifikasi
           setTimeout(() => {
             this.back();
           }, 1500);
         },
         error: (err) => {
           console.error('Gagal enroll course:', err);
-          // 3. ERROR: Toast
           this.showToast('Gagal menambahkan matakuliah. Mungkin sudah diambil?', 'error');
-
-          // Matikan loading manual karena error
           this.isLoading = false;
           this.cdr.detectChanges();
         }
@@ -114,7 +102,6 @@ export class CreateStudentCourseComponent implements OnInit {
     });
   }
 
-  // 4. HELPER TOAST
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
     this.cdr.detectChanges();

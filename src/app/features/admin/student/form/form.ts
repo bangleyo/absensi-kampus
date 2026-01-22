@@ -1,12 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, NgForm} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 
-// Services & Models
-import { StudentService } from '../../../../core/services/student.service';
-import { Student } from '../../../../core/models/student.model';
+import {StudentService} from '../../../../core/services/student.service';
 
 type Mode = 'create' | 'edit';
 
@@ -33,7 +30,6 @@ export class StudentFormComponent implements OnInit {
     'Sistem Informasi'
   ];
 
-  // 1. TAMBAHKAN STATE TOAST
   toastState = {
     show: false,
     message: '',
@@ -62,8 +58,6 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
-  // --- ACTIONS ---
-
   onSubmit(form: NgForm): void {
     if (form.invalid) return;
     this.mode === 'create' ? this.createStudent() : this.updateStudent();
@@ -79,8 +73,6 @@ export class StudentFormComponent implements OnInit {
   back(): void {
     this.router.navigate(['/admin/student']);
   }
-
-  // --- API CALLS DENGAN TOAST ---
 
   private createStudent(): void {
     this.isLoading = true;
@@ -126,7 +118,6 @@ export class StudentFormComponent implements OnInit {
       });
   }
 
-  // 4. HELPER TOAST
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
     this.cdr.detectChanges();

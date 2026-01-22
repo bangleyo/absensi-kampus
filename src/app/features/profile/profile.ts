@@ -1,18 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, NgForm} from '@angular/forms';
+import {finalize} from 'rxjs';
 
-// Services & Directives
-import { UserService } from '../../core/services/user.service';
-import { MatchDirective } from './match.directive';
-
-// Interfaces (Biasanya di file model terpisah, tapi didefinisikan disini jika belum ada)
-export interface ChangePasswordRequest {
-  currentPassword: '';
-  newPassword: '';
-  confirmPassword: '';
-}
+import {UserService} from '../../core/services/user.service';
+import {MatchDirective} from './match.directive';
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -20,7 +12,7 @@ type FormStatus = 'idle' | 'loading' | 'success' | 'error';
   selector: 'app-profile',
   templateUrl: './profile.html',
   styleUrls: [
-    '../../../styles/shared/header.css', // Gunakan Shared Header Style
+    '../../../styles/shared/header.css',
     './profile.css',
     '../../../styles/shared/admin-pages.css'
   ],
@@ -29,7 +21,6 @@ type FormStatus = 'idle' | 'loading' | 'success' | 'error';
   imports: [CommonModule, FormsModule, MatchDirective]
 })
 export class ProfileComponent {
-  // Akses ke form di template untuk reset yang bersih
   @ViewChild('passwordForm') passwordForm!: NgForm;
 
   // Form state
@@ -53,8 +44,6 @@ export class ProfileComponent {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  // Lifecycle ngOnInit dihapus karena checkUserSession redundant (sudah di-handle Guard)
-
   /**
    * Submit form handler.
    */
@@ -71,10 +60,8 @@ export class ProfileComponent {
    * Menggunakan NgForm.resetForm() alih-alih DOM manipulation.
    */
   resetForm(): void {
-    // Reset validation state (pristine/untouched)
     this.passwordForm.resetForm();
 
-    // Reset data model
     this.formData = {
       currentPassword: '',
       newPassword: '',
@@ -95,23 +82,18 @@ export class ProfileComponent {
     (this as any)[prop] = !(this as any)[prop];
   }
 
-  // --- PRIVATE METHODS ---
-
   private changePassword(): void {
     this.setStatus('loading', 'Mengubah password...');
 
     this.userService.changePassword(this.formData)
       .pipe(
         finalize(() => {
-          // Kita tidak otomatis reset form di sini agar user bisa melihat pesan sukses
-          // Reset form bisa dipanggil manual atau setelah delay jika diinginkan
           this.cdr.markForCheck();
         })
       )
       .subscribe({
         next: () => {
           this.setStatus('success', 'Password berhasil diubah!');
-          // Opsional: Reset form setelah sukses
           setTimeout(() => this.resetForm(), 2000);
         },
         error: (err) => {

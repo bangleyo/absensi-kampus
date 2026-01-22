@@ -4,18 +4,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
-// Components & Services
 import { SharedTableComponent } from '../../../../shared/table/table';
 import { AttendanceService } from '../../../../core/services/attendance.service';
 import { AttendanceDetail } from '../../../../core/models/attendance.model';
 
 @Component({
-  selector: 'app-admin-attendance-detail', // Selector diperbaiki
+  selector: 'app-admin-attendance-detail',
   templateUrl: './attendance.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',      // Header Style
-    '../../../../shared/table/table.css',           // Table Style
-    '../../../../../styles/shared/admin-pages.css'  // Shared Admin Style (Gantikan attendance.css)
+    '../../../../../styles/shared/header.css',
+    '../../../../shared/table/table.css',
+    '../../../../../styles/shared/admin-pages.css'
   ],
   standalone: true,
   imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule],
@@ -26,7 +25,6 @@ export class AdminDashboardAttendanceComponent implements OnInit {
   attendanceUser: AttendanceDetail[] = [];
   loading = true;
 
-  // Table Config
   tableColumns = [
     { key: 'name', label: 'Nama Mahasiswa' },
     { key: 'nim', label: 'NIM' },
@@ -81,8 +79,7 @@ export class AdminDashboardAttendanceComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        // Format nama file: Laporan_Absensi_[ID].xlsx
-        a.download = `Laporan_Absensi_Sesi_${this.id}.xlsx`;
+        a.download = `Laporan_Absensi.xlsx`;
         document.body.appendChild(a);
         a.click();
 

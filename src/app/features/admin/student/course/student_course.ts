@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {finalize} from 'rxjs';
 
-// Components & Services
-import { SharedTableComponent } from '../../../../shared/table/table';
-import { StudentCourseService } from '../../../../core/services/student_course.service';
-import { StudentCourse } from '../../../../core/models/student_course.model';
+import {SharedTableComponent} from '../../../../shared/table/table';
+import {StudentCourseService} from '../../../../core/services/student_course.service';
+import {StudentCourse} from '../../../../core/models/student_course.model';
 
 @Component({
   selector: 'app-admin-student-course',
@@ -22,26 +21,21 @@ import { StudentCourse } from '../../../../core/models/student_course.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminStudentCourseComponent implements OnInit {
-  // Data State
   studentCourses: StudentCourse[] = [];
   loading = true;
 
-  // Student Info from Params
   nim: string = "";
   name: string = "";
 
-  // Table Config
   tableColumns = [
     { key: 'name', label: 'Matakuliah' },
     { key: 'code', label: 'Kode' }
   ];
 
-  // Delete State
   showDeleteModal = false;
   selectedStudentCourse: any = null;
   deleteLoading = false;
 
-  // 1. STATE TOAST MANUAL
   toastState = {
     show: false,
     message: '',
@@ -89,8 +83,6 @@ export class AdminStudentCourseComponent implements OnInit {
       });
   }
 
-  // --- ACTIONS ---
-
   createStudentCourse(): void {
     this.router.navigate(['/admin/student/course/create'], {
       queryParams: {
@@ -103,8 +95,6 @@ export class AdminStudentCourseComponent implements OnInit {
   back(): void {
     this.router.navigate(['/admin/student']);
   }
-
-  // --- DELETE LOGIC ---
 
   deleteStudentCourse(item: any): void {
     this.selectedStudentCourse = item;
@@ -127,13 +117,11 @@ export class AdminStudentCourseComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // 2. SUKSES: Tampilkan Toast
           this.showToast('Matakuliah berhasil dihapus dari KRS!', 'success');
           this.loadCourses();
         },
         error: (err) => {
           console.error('Gagal menghapus matakuliah:', err);
-          // 3. ERROR: Tampilkan Toast
           this.showToast('Gagal menghapus data.', 'error');
         }
       });
@@ -144,7 +132,6 @@ export class AdminStudentCourseComponent implements OnInit {
     this.selectedStudentCourse = null;
   }
 
-  // 4. HELPER TOAST
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
     this.cdr.detectChanges();

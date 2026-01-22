@@ -1,4 +1,3 @@
-/* --- LAYOUT WRAPPER --- */
 .app-wrapper {
   display: flex;
   min-height: 100vh;
@@ -7,37 +6,21 @@
   overflow-x: hidden;
 }
 
-/* --- MAIN CONTENT AREA (The Template) --- */
-/* Class ini bertindak sebagai container utama untuk SEMUA halaman anak */
 .main-content {
   flex: 1;
   width: 100%;
-
-  /* 1. Handling Topbar Fixed */
-  /* Topbar height (~80px) + Gap (20px) = 100px */
   padding-top: 100px;
-
-  /* 2. Handling Sidebar Fixed */
-  /* Sidebar width (280px) */
   margin-left: 280px;
-
-  /* Animasi Transisi Halus saat Sidebar berubah */
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
 }
 
-/* --- STATE: SIDEBAR COLLAPSED (MINI) --- */
-/* Otomatis aktif saat layout mendeteksi sidebar menutup */
 .app-wrapper.sidebar-collapsed .main-content {
-  margin-left: 80px; /* Lebar Mini Sidebar */
+  margin-left: 80px;
 }
 
-/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
   .main-content {
-    /* Di Mobile, defaultnya Mini Sidebar */
     margin-left: 80px;
-
-    /* Padding sedikit dikecilkan untuk layar sempit */
     padding-top: 90px;
     padding-right: 16px;
     padding-left: 16px;

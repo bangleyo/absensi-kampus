@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { HeaderService } from '../../../core/services/header.service';
-import { LayoutService } from '../../../core/services/layout.service'; // Pastikan path sesuai
+import { LayoutService } from '../../../core/services/layout.service';
 
 interface UserSession {
   readonly role: 'STUDENT' | 'ADMIN' | 'LECTURER';
@@ -22,19 +22,16 @@ interface UserSession {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopbarComponent implements OnInit {
-  // Observables & Signals
   readonly pageTitle$: Observable<string>;
-  // Mengambil signal dari service agar reaktif terhadap perubahan sidebar
   readonly isSidebarCollapsed: Signal<boolean>;
 
-  // State
   currentUser: UserSession | null = null;
   displayName: string = '';
 
   constructor(
     private readonly authService: AuthService,
     private readonly headerService: HeaderService,
-    private readonly layoutService: LayoutService, // Inject LayoutService
+    private readonly layoutService: LayoutService,
     private readonly router: Router
   ) {
     this.pageTitle$ = this.headerService.currentPageTitle;

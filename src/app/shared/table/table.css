@@ -1,16 +1,9 @@
-/* ==========================================================================
-   SHARED TABLE STYLES
-   Generic Responsive Table Component
-   ========================================================================== */
-
 /* --- CONTAINER & LAYOUT --- */
 .admin-table-container {
   width: 100%;
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-
-  /* HAPUS overflow-x: auto dari sini agar shadow card tetap diam */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -18,12 +11,8 @@
 
 .table-wrapper {
   width: 100%;
-
-  /* PERBAIKAN UTAMA: */
-  overflow-x: auto; /* Aktifkan scroll horizontal di sini */
-  -webkit-overflow-scrolling: touch; /* Smooth scroll untuk iOS/Android */
-
-  /* HAPUS overflow: hidden; karena ini yang bikin tabel terpotong */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
 }
@@ -33,9 +22,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
-
-  /* Pastikan tabel tidak menyusut paksa di layar kecil */
-  min-width: 600px; /* Opsional: Memaksa lebar minimum agar trigger scroll */
+  min-width: 600px;
 }
 
 .responsive-table th,
@@ -43,12 +30,9 @@
   padding: 16px 20px;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
-
-  /* PENTING: Agar teks tidak turun ke bawah (wrap) dan bikin tabel jadi tinggi */
   white-space: nowrap;
 }
 
-/* Sticky Header - Agar header tetap terlihat saat scroll ke bawah (opsional) */
 .responsive-table th {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -59,7 +43,6 @@
   z-index: 10;
 }
 
-/* Row Interactions */
 .responsive-table tbody tr {
   transition: background-color 0.2s;
 }
@@ -68,7 +51,6 @@
   background-color: #f8f9ff;
 }
 
-/* --- ACTION BUTTONS (Generic) --- */
 .actions {
   white-space: nowrap;
   display: flex;
@@ -88,7 +70,6 @@
   justify-content: center;
 }
 
-/* Tombol Edit */
 .btn-edit {
   background-color: #e0f2f1;
   color: #00695c;
@@ -100,7 +81,6 @@
   transform: translateY(-1px);
 }
 
-/* Tombol Delete */
 .btn-delete {
   background-color: #ffebee;
   color: #c62828;
@@ -189,10 +169,9 @@
 
   .responsive-table th,
   .responsive-table td {
-    padding: 12px 16px; /* Sedikit penyesuaian padding */
+    padding: 12px 16px;
   }
 
-  /* Scroll Indicator (Opsional: Memberi hint user bisa scroll) */
   .table-wrapper {
     background:
       linear-gradient(to right, white 30%, rgba(255,255,255,0)),

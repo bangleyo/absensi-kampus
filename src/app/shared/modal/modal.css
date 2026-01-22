@@ -79,8 +79,8 @@
   padding: 20px;
   border-top: 1px solid #eee;
   display: flex;
-  gap: 12px; /* Sedikit lebih lebar */
-  align-items: stretch; /* Height sama */
+  gap: 12px;
+  align-items: stretch;
 }
 
 .trigger-btn, .btn-cancel, .btn-confirm {
@@ -107,7 +107,6 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* Animation TIDAK conflict dengan transform base */
 .shared-modal.show .shared-modal-content {
   animation: fadeInSlide 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -123,7 +122,6 @@
   }
 }
 
-/* Mobile: Stack vertical */
 @media (max-width: 480px) {
   .shared-modal-footer {
     flex-direction: column;
@@ -131,12 +129,11 @@
   }
 }
 
-/* MOBILE PERFECT - Match qr-modal.css 100% */
 @media (max-width: 768px) {
   .shared-modal-content {
     width: 90%;
-    max-width: 400px; /* qr-modal exact */
-    margin: 20px; /* qr-modal exact */
+    max-width: 400px;
+    margin: 20px;
     max-height: 85vh;
   }
 
@@ -161,7 +158,6 @@
   }
 }
 
-/* Form Modal - Match course-card design */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -199,7 +195,6 @@
   border-color: #d0d0d0;
 }
 
-/* Validation states - match attendance-status */
 .form-control.is-invalid {
   border-color: #d32f2f;
   background: #fff5f5;
@@ -214,11 +209,10 @@
   font-weight: 500;
 }
 
-/* Mobile optimization */
 @media (max-width: 768px) {
   .form-control {
     padding: 16px 18px;
-    font-size: 16px; /* Prevent zoom */
+    font-size: 16px;
   }
 
   .form-label {
@@ -226,7 +220,6 @@
   }
 }
 
-/* Form header/title */
 .form-section-title {
   margin-bottom: 1.5rem;
   padding-bottom: 12px;
@@ -236,7 +229,6 @@
   border-bottom: 2px solid #e8e8e8;
 }
 
-/* Checkbox/radio group */
 .form-check {
   display: flex;
   align-items: center;
@@ -250,15 +242,14 @@
   accent-color: #667eea;
 }
 
-/* BUTTONS MODAL - HIGH SPECIFICITY + !important */
 .shared-modal button.btn-cancel,
 .shared-modal button.btn-confirm,
 .shared-modal-footer .btn-cancel,
 .shared-modal-footer .btn-confirm {
   width: 100% !important;
-  padding: 14px 16px !important; /* EXACT attendance-btn */
+  padding: 14px 16px !important;
   border: none !important;
-  border-radius: 10px !important; /* EXACT */
+  border-radius: 10px !important;
   font-size: 15px !important;
   font-weight: 600 !important;
   color: #fff !important;
@@ -268,7 +259,6 @@
   margin: 0 !important;
 }
 
-/* Gunakan ::ng-deep agar gaya menembus ke content projection */
 :host ::ng-deep .btn-cancel,
 :host ::ng-deep .btn-confirm {
   width: 100% !important;
@@ -281,7 +271,7 @@
   cursor: pointer !important;
   transition: all 0.3s ease !important;
   box-sizing: border-box !important;
-  display: block; /* Pastikan terlihat sebagai block untuk width 100% */
+  display: block;
   text-align: center;
 }
 
@@ -295,7 +285,6 @@
   box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
 }
 
-/* Efek Hover */
 :host ::ng-deep .btn-confirm:hover:not(:disabled),
 :host ::ng-deep .btn-cancel:hover:not(:disabled) {
   transform: translateY(-3px) !important;

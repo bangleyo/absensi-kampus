@@ -7,7 +7,6 @@ import { DashboardLayoutComponent } from './shared/layouts/dashboard-layout/dash
 
 // Auth Pages
 import { LoginComponent } from './features/login/login';
-import { RegisterComponent } from './features/register/register';
 
 // Student/General Pages
 import { DashboardComponent } from './features/dashboard/dashboard';
@@ -36,7 +35,6 @@ export const routes: Routes = [
   // --- PUBLIC ROUTES ---
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
 
   // --- PROTECTED ROUTES (Butuh Login) ---
   {

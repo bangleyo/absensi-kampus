@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, Signal, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { NgIf, NgClass } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
-import { HeaderService } from '../../../core/services/header.service';
-import { LayoutService } from '../../../core/services/layout.service';
+import {ChangeDetectionStrategy, Component, OnInit, Signal, signal} from '@angular/core';
+import {Router, RouterModule} from '@angular/router';
+import {NgIf} from '@angular/common';
+import {AuthService} from '../../../core/services/auth.service';
+import {HeaderService} from '../../../core/services/header.service';
+import {LayoutService} from '../../../core/services/layout.service';
 
 export enum UserRole {
   STUDENT = 'STUDENT',
@@ -28,7 +28,6 @@ interface UserSession {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent implements OnInit {
-  // Signal ini sekarang read-only di component ini, sumbernya dari Service
   isCollapsed: Signal<boolean>;
 
   user = signal<UserSession | null>(null);

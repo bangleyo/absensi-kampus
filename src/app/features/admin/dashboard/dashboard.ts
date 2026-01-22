@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-// Services & Models
 import { ClassSessionService } from '../../../core/services/class_session.service';
 import { ClassSession } from '../../../core/models/class_session.model';
 
 @Component({
-  selector: 'app-admin-dashboard', // Selector diperbaiki agar spesifik
+  selector: 'app-admin-dashboard',
   templateUrl: './dashboard.html',
   styleUrls: [
     '../../../../styles/shared/header.css',
@@ -19,11 +18,9 @@ import { ClassSession } from '../../../core/models/class_session.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminDashboardComponent implements OnInit {
-  // --- Data Properties ---
   classSessions: ClassSession[] = [];
   loading: boolean = true;
 
-  // --- UI State ---
   toastState = {
     show: false,
     message: '',
@@ -70,8 +67,6 @@ export class AdminDashboardComponent implements OnInit {
   navigateToDetail(sessionId: number): void {
     this.router.navigate([`/admin/dashboard/attendance/${sessionId}`]);
   }
-
-  // --- UI Helpers ---
 
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };

@@ -1,67 +1,38 @@
-/* --- COMPONENT BASE --- */
 :host {
   display: block;
-  /* Topbar sekarang dibuat fixed agar selalu terlihat saat scroll */
-  /* dan posisinya dikontrol via properti 'left' */
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 90; /* Di bawah sidebar (biasanya 100) */
-
-  /* TRANSISI HALUS: Ini kunci agar topbar bergerak mulus mengikuti sidebar */
+  z-index: 90;
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
-
-  /* DEFAULT STATE (Sidebar Expanded/Lebar) */
-  left: 280px; /* Sesuai lebar sidebar normal */
-  width: calc(100% - 280px); /* Sisanya untuk topbar */
+  left: 280px;
+  width: calc(100% - 280px);
 }
 
-/* --- LOGIC KETIKA SIDEBAR MINI (COLLAPSED) --- */
-/* Class ini ditrigger dari topbar.html berdasarkan LayoutService */
-:host ::ng-deep .navbar.sidebar-collapsed {
-  /* Kita handle logic layout di :host context jika memungkinkan,
-     tapi karena Angular encapsulation, kita atur sizing navbar di bawah */
-}
-
-/* Override posisi host ketika sidebar collapsed */
 :host:has(.sidebar-collapsed) {
-  left: 80px; /* Sesuai lebar mini sidebar */
+  left: 80px;
   width: calc(100% - 80px);
 }
 
-/* Fallback jika browser tidak support :has (sebagian besar modern browser support)
-   Kita bisa gunakan binding style langsung di HTML atau pendekatan media query.
-   Tapi untuk simplicity, kita asumsikan struktur CSS ini: */
-
-/* --- NAVBAR STYLING --- */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  /* Memberikan jarak (margin) agar terlihat "Floating" (Melayang) */
   margin: 20px 20px 0 20px;
   padding: 16px 24px;
-
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 12px;
-  box-shadow: var(--shadow-soft);
-
-  /* Variables */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --shadow-soft: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-/* --- TYPOGRAPHY --- */
 .navbar-title {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  white-space: nowrap; /* Mencegah judul turun baris */
+  white-space: nowrap;
 }
 
-/* --- USER INFO --- */
 .user-info {
   display: flex;
   align-items: center;
@@ -95,26 +66,21 @@
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
   :host {
-    /* Di Mobile, sidebar selalu mini (80px) atau hidden overlay.
-       Sesuai request Anda "mini sidebar menampilkan logo saja",
-       maka Topbar harus start dari 80px */
     left: 80px !important;
     width: calc(100% - 80px) !important;
   }
 
   .navbar {
-    margin: 15px 15px 0 15px; /* Margin lebih kecil di HP */
+    margin: 15px 15px 0 15px;
     padding: 12px 16px;
   }
 
   .navbar-title {
-    font-size: 1.1rem; /* Judul lebih kecil */
+    font-size: 1.1rem;
   }
 
-  /* Sembunyikan detail user text di mobile agar tidak sempit, sisakan avatar */
   .user-details {
     display: none;
   }

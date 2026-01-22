@@ -1,13 +1,11 @@
-import { Component, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Wajib untuk AsyncPipe/Class binding
-import { RouterOutlet } from '@angular/router';
+import {Component, Signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterOutlet} from '@angular/router';
 
-// Imports Components
-import { SidebarComponent } from '../../components/sidebar/sidebar';
-import { TopbarComponent } from '../../components/topbar/topbar';
+import {SidebarComponent} from '../../components/sidebar/sidebar';
+import {TopbarComponent} from '../../components/topbar/topbar';
 
-// Service
-import { LayoutService } from '../../../core/services/layout.service';
+import {LayoutService} from '../../../core/services/layout.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -22,7 +20,6 @@ import { LayoutService } from '../../../core/services/layout.service';
   ]
 })
 export class DashboardLayoutComponent {
-  // Signal untuk membaca state sidebar
   isSidebarCollapsed: Signal<boolean>;
 
   constructor(private layoutService: LayoutService) {

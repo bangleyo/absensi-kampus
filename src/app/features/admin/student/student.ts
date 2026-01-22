@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {FormsModule} from '@angular/forms';
+import {finalize} from 'rxjs';
 
-// Components & Services
-import { SharedTableComponent } from '../../../shared/table/table';
-import { Student } from '../../../core/models/student.model';
-import { StudentService } from '../../../core/services/student.service';
+import {SharedTableComponent} from '../../../shared/table/table';
+import {Student} from '../../../core/models/student.model';
+import {StudentService} from '../../../core/services/student.service';
 
 @Component({
   selector: 'app-admin-student',
@@ -22,23 +21,19 @@ import { StudentService } from '../../../core/services/student.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminStudentComponent implements OnInit {
-  // Data State
   students: Student[] = [];
   loading = true;
 
-  // Table Configuration
   tableColumns = [
     { key: 'name', label: 'Nama Lengkap' },
     { key: 'nim', label: 'NIM' },
     { key: 'major', label: 'Program Studi' },
   ];
 
-  // Delete Modal State
   showDeleteModal = false;
   selectedStudent: Student | null = null;
   deleteLoading = false;
 
-  // 1. TAMBAHKAN STATE TOAST
   toastState = {
     show: false,
     message: '',
@@ -73,8 +68,6 @@ export class AdminStudentComponent implements OnInit {
       });
   }
 
-  // --- ACTIONS ---
-
   createStudent(): void {
     this.router.navigate(['/admin/student/form']);
   }
@@ -99,8 +92,6 @@ export class AdminStudentComponent implements OnInit {
     });
   }
 
-  // --- DELETE LOGIC ---
-
   deleteStudent(item: any): void {
     this.selectedStudent = item;
     this.showDeleteModal = true;
@@ -122,13 +113,11 @@ export class AdminStudentComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // 2. TAMPILKAN TOAST SUKSES
           this.showToast('Data mahasiswa berhasil dihapus!', 'success');
           this.loadStudents();
         },
         error: (err) => {
           console.error('Gagal menghapus mahasiswa:', err);
-          // 3. TAMPILKAN TOAST ERROR
           this.showToast('Gagal menghapus data mahasiswa.', 'error');
         }
       });
@@ -139,7 +128,6 @@ export class AdminStudentComponent implements OnInit {
     this.selectedStudent = null;
   }
 
-  // 4. HELPER TOAST
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
     this.cdr.detectChanges();

@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, NgForm} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 
-import { CourseService } from '../../../../core/services/course.service';
-import { Course } from '../../../../core/models/course.model';
+import {CourseService} from '../../../../core/services/course.service';
+import {Course} from '../../../../core/models/course.model';
 
 type Mode = 'create' | 'edit';
 
@@ -27,7 +26,6 @@ export class CreateCourseComponent implements OnInit {
   mode: Mode = 'create';
   isLoading = false;
 
-  // 1. TAMBAHKAN STATE TOAST
   toastState = {
     show: false,
     message: '',
@@ -71,20 +69,12 @@ export class CreateCourseComponent implements OnInit {
     this.router.navigate(['/admin/course']);
   }
 
-  // --- API CALLS ---
-
   private addCourse(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    this.courseService.addCourse(this.formData.name, this.formData.code)
-      .pipe(finalize(() => {
-        // Hapus finalize loading=false disini, kita handle manual agar tombol tetap disabled saat delay redirect
-        // Kecuali error
-      }))
-      .subscribe({
+    this.courseService.addCourse(this.formData.name, this.formData.code).subscribe({
         next: () => {
-          // 2. SUKSES: Tampilkan Toast -> Delay -> Redirect
           this.showToast('Berhasil menambahkan matakuliah!', 'success');
           setTimeout(() => {
             this.router.navigate(['/admin/course']);

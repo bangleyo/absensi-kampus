@@ -1,10 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs';
+import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {finalize} from 'rxjs';
 import jsQR from 'jsqr';
 
-import { ClassSessionService } from '../../core/services/class_session.service';
-import { ClassSession } from '../../core/models/class_session.model';
+import {ClassSessionService} from '../../core/services/class_session.service';
+import {ClassSession} from '../../core/models/class_session.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,11 +19,10 @@ import { ClassSession } from '../../core/models/class_session.model';
   imports: [CommonModule]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  // --- Data Properties ---
   classSessions: ClassSession[] = [];
   isLoading = true;
 
-  // --- UI State ---
+
   showQrModal = false;
   selectedSessionId?: number;
   scannerStatusText = 'Memulai scanner...';
@@ -34,7 +33,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     type: 'success' as 'success' | 'error'
   };
 
-  // --- Hardware References ---
   @ViewChild('qrVideo') qrVideoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('qrCanvas') qrCanvasRef!: ElementRef<HTMLCanvasElement>;
 
@@ -69,8 +67,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // --- QR Scanner Logic ---
-
   openScanner(courseId: number): void {
     this.selectedSessionId = courseId;
     this.showQrModal = true;
@@ -81,7 +77,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showQrModal = false;
     this.selectedSessionId = undefined;
     this.stopScannerResources();
-    this.cdr.detectChanges(); // Pastikan modal tertutup secara visual
+    this.cdr.detectChanges();
   }
 
   private stopScannerResources(): void {
@@ -141,8 +137,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Attendance Logic ---
-
   private async submitAttendance(qrToken: string): Promise<void> {
     clearInterval(this.scannerInterval);
     this.scannerStatusText = '⏳ Mengirim data...';
@@ -159,10 +153,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
             this.showToast('Absensi berhasil dicatat!', 'success');
             this.fetchActiveSessions();
           },
-          // PERBAIKAN DISINI
           error: (err) => {
             console.error('Attendance Error:', err);
-            // Ambil pesan error dari backend jika ada, atau gunakan default
             const msg = err.error?.data.message || 'Gagal mengirim data absensi (Server Error).';
             this.showToast(msg, 'error');
           }
@@ -190,13 +182,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
-
-    // PERBAIKAN UTAMA: Paksa update UI segera saat toast muncul
     this.cdr.detectChanges();
 
     setTimeout(() => {
       this.toastState.show = false;
-      this.cdr.detectChanges(); // Update UI lagi saat toast hilang
+      this.cdr.detectChanges();
     }, 3000);
   }
 }

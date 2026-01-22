@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
 
-import { AuthService } from '../../core/services/auth.service';
+import {AuthService} from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -50,15 +49,7 @@ export class LoginComponent implements OnInit {
 
     const { username, password, remember } = this.loginForm.value;
 
-    this.authService.login({ username, password })
-      .pipe(
-        finalize(() => {
-          // finalize tidak digunakan untuk set isLoading = false disini
-          // karena kita mau loading tetap jalan saat delay redirect sukses
-          // kita handle manual di error block
-        })
-      )
-      .subscribe({
+    this.authService.login({ username, password }).subscribe({
         next: () => {
           this.handleSuccess(username, remember);
         },
@@ -72,15 +63,12 @@ export class LoginComponent implements OnInit {
 
   private handleSuccess(username: string, remember: boolean): void {
     this.successMessage = 'Login Berhasil! Mengalihkan...';
-
-    // Handle "Remember Me"
     if (remember) {
       localStorage.setItem('savedUsername', username);
     } else {
       localStorage.removeItem('savedUsername');
     }
 
-    // Delay sedikit untuk UX, lalu redirect sesuai Role
     setTimeout(() => {
       this.navigateByRole();
     }, 1500);
@@ -101,8 +89,6 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/dashboard']); // Fallback route
         break;
     }
-
-    // Matikan loading setelah navigasi dimulai
     this.isLoading = false;
   }
 }

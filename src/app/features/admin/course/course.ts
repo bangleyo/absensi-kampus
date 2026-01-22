@@ -32,7 +32,6 @@ export class AdminCourseComponent implements OnInit {
   selectedCourse: Course | null = null;
   deleteLoading = false;
 
-  // 1. TAMBAHKAN STATE TOAST DISINI
   toastState = {
     show: false,
     message: '',
@@ -98,13 +97,11 @@ export class AdminCourseComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          // 2. PANGGIL TOAST SUKSES
           this.showToast('Matakuliah berhasil dihapus!', 'success');
           this.loadCourses();
         },
         error: (err) => {
           console.error('Delete failed', err);
-          // 3. PANGGIL TOAST ERROR
           this.showToast('Gagal menghapus data. Silakan coba lagi.', 'error');
         }
       });
@@ -118,11 +115,11 @@ export class AdminCourseComponent implements OnInit {
   // 4. HELPER FUNCTION UNTUK MENAMPILKAN TOAST
   private showToast(message: string, type: 'success' | 'error'): void {
     this.toastState = { show: true, message, type };
-    this.cdr.detectChanges(); // Force update UI agar muncul
+    this.cdr.detectChanges();
 
     setTimeout(() => {
       this.toastState.show = false;
-      this.cdr.detectChanges(); // Force update UI agar hilang
+      this.cdr.detectChanges();
     }, 3000);
   }
 }

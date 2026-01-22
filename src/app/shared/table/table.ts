@@ -1,6 +1,6 @@
-import { Component, ContentChild, EventEmitter, Input, OnChanges, Output, SimpleChanges, TemplateRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {Component, ContentChild, Input, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-shared-table',
@@ -10,15 +10,12 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule]
 })
 export class SharedTableComponent<T> implements OnChanges {
-  // Data Input (Generic Type T)
   @Input() data: T[] = [];
   @Input() columns: { key: string; label: string }[] = [];
   @Input() loading: boolean = false;
 
-  // Custom Actions Template
   @ContentChild('actionTemplate') actionTemplate?: TemplateRef<any>;
 
-  // Pagination State
   currentPage = 1;
   itemsPerPage = 5;
   paginationOptions = [5, 10, 25, 50];
@@ -27,7 +24,6 @@ export class SharedTableComponent<T> implements OnChanges {
   pages: number[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Recalculate pagination when data changes
     if (changes['data'] || changes['loading']) {
       this.calculatePagination();
     }
@@ -42,8 +38,6 @@ export class SharedTableComponent<T> implements OnChanges {
       return obj ? obj[property] : '-'; // Return '-' jika data null
     }, item);
   }
-
-  // --- PAGINATION LOGIC ---
 
   onItemsPerPageChange(): void {
     this.currentPage = 1;
