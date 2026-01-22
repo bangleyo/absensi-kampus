@@ -1,34 +1,42 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {SharedTableComponent} from '../../../../shared/table/table';
-import {ActivatedRoute, Router} from '@angular/router';
-import {StudentCourseService} from '../../../../core/services/student_course.service';
-import {StudentCourse} from '../../../../core/models/student_course.model';
-import {finalize} from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
+
+// Components & Services
+import { SharedTableComponent } from '../../../../shared/table/table';
+import { StudentCourseService } from '../../../../core/services/student_course.service';
+import { StudentCourse } from '../../../../core/models/student_course.model';
 
 @Component({
-  selector: 'app-admin-course',
+  selector: 'app-admin-student-course', // Selector diperbaiki (unik)
   templateUrl: './student_course.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',
-    '../../../../shared/table/table.css',
-    './student_course.css',
+    '../../../../../styles/shared/header.css',      // Header Style
+    '../../../../shared/table/table.css',           // Table Style
+    '../../../../../styles/shared/admin-pages.css'  // Shared Admin Style
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, SharedTableComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminStudentCourseComponent implements OnInit {
-  studentCourse: StudentCourse[] = [];
+  // Data State
+  studentCourses: StudentCourse[] = []; // Renamed to plural
   loading = true;
+
+  // Student Info from Params
+  nim: string = "";
+  name: string = "";
+
+  // Table Config
   tableColumns = [
     { key: 'name', label: 'Matakuliah' },
     { key: 'code', label: 'Kode' }
   ];
-  nim: string = ""
-  name: string = ""
 
-  // DELETE STATE
+  // Delete State
   showDeleteModal = false;
   selectedStudentCourse: any = null;
   deleteLoading = false;
@@ -37,33 +45,50 @@ export class AdminStudentCourseComponent implements OnInit {
     private studentCourseService: StudentCourseService,
     private router: Router,
     private readonly cdr: ChangeDetectorRef,
-    private route : ActivatedRoute
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit() { this.loadCourses(); }
+  ngOnInit(): void {
+    this.initData();
+  }
 
-  loadCourses() {
-    this.setNim();
-    this.studentCourseService.getEnrollCourse(this.nim).subscribe(res => {
-      this.studentCourse = res.data;
-      this.loading = false;
-      this.cdr.detectChanges();
+  /**
+   * Inisialisasi data berdasarkan Query Params
+   */
+  private initData(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['nim'] && params['name']) {
+        this.nim = params['nim'];
+        this.name = params['name'];
+        this.loadCourses();
+      } else {
+        // Jika tidak ada param NIM, kembali ke list mahasiswa
+        this.back();
+      }
     });
   }
 
-  setNim() {
-    this.route.queryParams.subscribe(param => {
-      if (param['nim']) {
-        this.nim = param['nim'];
-        this.name = param['name'];
-      } else {
-        this.router.navigate([`/admin/student`])
-      }
-    })
+  loadCourses(): void {
+    this.loading = true;
+    this.studentCourseService.getEnrollCourse(this.nim)
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.studentCourses = res.data || [];
+        },
+        error: (err) => {
+          console.error('Gagal memuat matakuliah mahasiswa:', err);
+        }
+      });
   }
 
-  createStudentCourse() {
-    this.router.navigate([`/admin/student/course/create`], {
+  // --- ACTIONS ---
+
+  createStudentCourse(): void {
+    this.router.navigate(['/admin/student/course/create'], {
       queryParams: {
         "nim": this.nim,
         "name": this.name
@@ -71,32 +96,45 @@ export class AdminStudentCourseComponent implements OnInit {
     });
   }
 
-  deleteStudentCourse(studentCourse: any) {
-    this.selectedStudentCourse = studentCourse;
+  back(): void {
+    this.router.navigate(['/admin/student']);
+  }
+
+  // --- DELETE LOGIC ---
+
+  deleteStudentCourse(item: any): void {
+    this.selectedStudentCourse = item;
     this.showDeleteModal = true;
   }
 
   confirmDelete(): void {
     if (!this.selectedStudentCourse) return;
-    console.log('confirmDelete:', this.selectedStudentCourse);
+
     this.deleteLoading = true;
+    this.cdr.detectChanges();
+
     this.studentCourseService.deleteEnrollCourse(this.selectedStudentCourse.id)
       .pipe(
         finalize(() => {
-          this.closeDeleteModal()
-          this.ngOnInit()
+          this.deleteLoading = false;
+          this.closeDeleteModal();
+          this.cdr.detectChanges();
         })
       )
-      .subscribe()
+      .subscribe({
+        next: () => {
+          // Reload data setelah hapus berhasil
+          this.loadCourses();
+        },
+        error: (err) => {
+          console.error('Gagal menghapus matakuliah:', err);
+          alert('Gagal menghapus data.');
+        }
+      });
   }
 
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedStudentCourse = null;
-    this.deleteLoading = false;
-  }
-
-  protected back() {
-    this.router.navigate([`/admin/student`])
   }
 }

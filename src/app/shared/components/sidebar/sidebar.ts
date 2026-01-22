@@ -1,16 +1,18 @@
-/**
- * Sidebar navigation component for authenticated users.
- * Handles user session validation, navigation, and logout.
- */
-import {Component, OnInit, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, Signal, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { NgIf, NgClass } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
-import { Subscription } from 'rxjs';
-import {HeaderService} from '../../../core/services/header.service';
-import {NgIf} from '@angular/common';
+import { HeaderService } from '../../../core/services/header.service';
+import { LayoutService } from '../../../core/services/layout.service';
+
+export enum UserRole {
+  STUDENT = 'STUDENT',
+  ADMIN = 'ADMIN',
+  LECTURER = 'LECTURER'
+}
 
 interface UserSession {
-  readonly role: 'STUDENT' | 'ADMIN' | 'LECTURER';
+  readonly role: UserRole;
   readonly username: string;
   readonly name: string;
   readonly nim: string;
@@ -21,159 +23,92 @@ interface UserSession {
   selector: 'app-sidebar',
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css'],
-  imports: [
-    NgIf
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush  // Performance: OnPush
+  standalone: true,
+  imports: [NgIf, RouterModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-  private sessionSubscription?: Subscription;
-  private readonly studentRole = 'STUDENT' as const;
-  private readonly admin = 'ADMIN' as const;
+export class SidebarComponent implements OnInit {
+  // Signal ini sekarang read-only di component ini, sumbernya dari Service
+  isCollapsed: Signal<boolean>;
 
-  user: UserSession | null = null;
-  displayName = '';
+  user = signal<UserSession | null>(null);
 
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
-    private headerService: HeaderService,
-  ) {}
+    private readonly headerService: HeaderService,
+    private readonly layoutService: LayoutService
+  ) {
+    this.isCollapsed = this.layoutService.isSidebarCollapsed;
+  }
 
   ngOnInit(): void {
-    this.initializeUserSession();
+    this.loadSession();
   }
 
-  ngOnDestroy(): void {
-    this.sessionSubscription?.unsubscribe();
-  }
-
-  /**
-   * Initialize user session from storage and validate role.
-   * Redirect to login if invalid STUDENT session.
-   */
-  private initializeUserSession(): void {
+  private loadSession(): void {
     const sessionData = sessionStorage.getItem('userSession');
-
-    if (!sessionData) {
-      this.redirectToLogin();
-      return;
-    }
+    if (!sessionData) return this.handleUnauthorized();
 
     try {
-      this.user = JSON.parse(sessionData);
-
-      if (this.isInvalidStudentSession()) {
-        this.authService.logout();
-        return;
+      const parsedUser = JSON.parse(sessionData) as UserSession;
+      if (parsedUser.role === UserRole.STUDENT && !parsedUser.nim) {
+        return this.handleUnauthorized();
       }
-
-      this.displayName = this.formatDisplayName();
-    } catch {
-      // Invalid JSON → treat as no session
-      this.redirectToLogin();
+      this.user.set(parsedUser);
+    } catch (error) {
+      this.handleUnauthorized();
     }
   }
 
-  /**
-   * Check if STUDENT session is invalid (missing NIM).
-   */
-  private isInvalidStudentSession(): boolean {
-    return this.user?.role === this.studentRole && !this.user.nim;
-  }
-
-  /**
-   * Format display name for sidebar (NIM prefixed).
-   */
-  private formatDisplayName(): string {
-    return `NIM ${this.user?.nim ?? ''}`;
-  }
-
-  /**
-   * Toggle sidebar collapsed state and adjust main content.
-   */
   toggleSidebar(): void {
-    const sidebar = this.getSidebarElement();
-    const mainContent = document.getElementById('mainContent');
-
-    sidebar?.classList.toggle('collapsed');
-    mainContent?.classList.toggle('expanded', sidebar?.classList.contains('collapsed'));
+    this.layoutService.toggleSidebar();
   }
 
-  /**
-   * Navigate to page and update active nav link.
-   * Auto-close sidebar on mobile.
-   */
-  navigateTo(page: string, label: string, event?: MouseEvent,): void {
-    this.updateActiveNavLink(event);
-    this.headerService.updateTitle(label)
+  isRouteActive(basePath: string): boolean {
+    const currentUser = this.user();
+    if (!currentUser) return false;
 
-    // 2. Navigate via Angular Router
-    if (this.user?.role === this.studentRole) {
-      this.router.navigate([`/${page}`]).then(success => {
-        if (success && window.innerWidth <= 768) {
-          this.toggleSidebar(); // Auto-close mobile
-        }
-      }).catch(err => {
-        console.error(`Navigation to ${page} failed:`, err);
-      });
-    } else if (this.user?.role === this.admin) {
-      this.router.navigate([`/admin/${page}`]).then(success => {
-        if (success && window.innerWidth <= 768) {
-          this.toggleSidebar(); // Auto-close mobile
-        }
-      }).catch(err => {
-        console.error(`Navigation to ${page} failed:`, err);
-      });
+    const prefix = currentUser.role === UserRole.ADMIN ? '/admin' : '';
+    const fullPath = `${prefix}/${basePath}`;
+
+    return this.router.url.includes(fullPath);
+  }
+
+  async navigateTo(path: string, title: string): Promise<void> {
+    const currentUser = this.user();
+    if (!currentUser) return;
+
+    this.headerService.updateTitle(title);
+    const routePrefix = currentUser.role === UserRole.ADMIN ? '/admin' : '';
+    const targetRoute = `${routePrefix}/${path}`;
+
+    try {
+      const success = await this.router.navigate([targetRoute]);
+
+      // Auto-collapse pada mobile menggunakan service
+      if (success && window.innerWidth <= 768) {
+        this.layoutService.setCollapsed(true);
+      }
+    } catch (error) {
+      console.error(`Navigation failed: ${targetRoute}`, error);
     }
   }
 
-  /**
-   * Update active navigation link state.
-   */
-  private updateActiveNavLink(event?: MouseEvent): void {
-    document
-      ?.querySelectorAll('.nav-link')
-      ?.forEach(link => link.classList.remove('active'));
-
-    const target = event?.target as HTMLElement | null;
-    const activeLink = target?.closest('.nav-link') as HTMLElement | null;
-
-    activeLink?.classList.add('active');
-  }
-
-  /**
-   * Confirm and execute logout.
-   * Clear all storage and redirect to login.
-   */
   logout(): void {
-    if (!confirm('Apakah Anda yakin ingin logout?')) {
-      return;
+    if (confirm('Apakah Anda yakin ingin logout?')) {
+      localStorage.removeItem('token');
+      sessionStorage.clear();
+      this.router.navigate(['/login'], { replaceUrl: true });
     }
-
-    this.performLogout();
   }
 
-  /**
-   * Execute logout sequence.
-   */
-  private performLogout(): void {
-    localStorage.removeItem('token');
-    sessionStorage.clear();
+  private handleUnauthorized(): void {
+    this.authService.logout();
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
-  /**
-   * Safely get sidebar DOM element.
-   */
-  private getSidebarElement(): HTMLElement | null {
-    return document.getElementById('sidebar');
-  }
-
-  /**
-   * Redirect to login page.
-   */
-  private redirectToLogin(): void {
-    this.router.navigate(['/login'], { replaceUrl: true });
+  get displayName(): string {
+    return this.user()?.nim ? `NIM ${this.user()?.nim}` : '';
   }
 }

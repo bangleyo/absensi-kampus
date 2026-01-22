@@ -1,51 +1,61 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, NgForm} from '@angular/forms';
-import {Router} from '@angular/router';
-import {MatchDirective} from './match.directive';
-import {UserService} from '../../core/services/user.service';
-import {finalize} from 'rxjs';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { finalize } from 'rxjs';
+
+// Services & Directives
+import { UserService } from '../../core/services/user.service';
+import { MatchDirective } from './match.directive';
+
+// Interfaces (Biasanya di file model terpisah, tapi didefinisikan disini jika belum ada)
+export interface ChangePasswordRequest {
+  currentPassword: '';
+  newPassword: '';
+  confirmPassword: '';
+}
+
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.html',
-  styleUrls: ['./profile.css'],
+  styleUrls: [
+    '../../../styles/shared/header.css', // Gunakan Shared Header Style
+    './profile.css'
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule, MatchDirective]
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent {
+  // Akses ke form di template untuk reset yang bersih
+  @ViewChild('passwordForm') passwordForm!: NgForm;
+
   // Form state
   status: FormStatus = 'idle';
   statusMessage = '';
 
-  // Form data
-  formData: ChangePasswordRequest = {
+  // Form data model
+  formData = {
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   };
 
-  // Password visibility toggles
+  // Visibility Toggles
   showCurrentPassword = false;
   showNewPassword = false;
   showConfirmPassword = false;
 
   constructor(
     private readonly userService: UserService,
-    private readonly router: Router,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.checkUserSession();
-  }
-
-  // ========== PUBLIC METHODS ==========
+  // Lifecycle ngOnInit dihapus karena checkUserSession redundant (sudah di-handle Guard)
 
   /**
-   * Submit form - validate then call API.
+   * Submit form handler.
    */
   onPasswordChange(form: NgForm): void {
     if (form.invalid) {
@@ -56,94 +66,73 @@ export class ProfileComponent implements OnInit {
   }
 
   /**
-   * Reset form inputs dan validation state.
+   * Reset form dan state visual.
+   * Menggunakan NgForm.resetForm() alih-alih DOM manipulation.
    */
   resetForm(): void {
-    // Native form reset
-    const form = document.querySelector('form.change-password-form') as HTMLFormElement;
-    form?.reset();
+    // Reset validation state (pristine/untouched)
+    this.passwordForm.resetForm();
 
-    // Clear data
-    this.formData = { currentPassword: '', newPassword: '', confirmPassword: '' };
+    // Reset data model
+    this.formData = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    };
+
     this.resetVisibility();
-    this.cdr.detectChanges();
+    this.setStatus('idle', '');
   }
 
   /**
-   * Toggle password visibility untuk field tertentu.
+   * Toggle visibility password dinamis.
+   * Menggunakan index signature type-safe.
    */
   togglePasswordVisibility(type: 'current' | 'new' | 'confirm'): void {
-    (this as any)[`show${this.capitalize(type)}Password`] =
-      !(this as any)[`show${this.capitalize(type)}Password`];
+    const prop = `show${this.capitalize(type)}Password` as keyof this;
+    // TypeScript trick untuk toggle boolean property dynamic
+    (this as any)[prop] = !(this as any)[prop];
   }
 
-  // ========== PRIVATE METHODS ==========
+  // --- PRIVATE METHODS ---
 
-  /**
-   * Check session validity, redirect if invalid.
-   */
-  private checkUserSession(): void {
-    if (!sessionStorage.getItem('userSession')) {
-      this.router.navigate(['/login']);
-    }
-  }
-
-  /**
-   * Call password change API.
-   */
-  private async changePassword(): Promise<void> {
+  private changePassword(): void {
     this.setStatus('loading', 'Mengubah password...');
 
-    try {
-      this.userService.changePassword(this.formData)
-        .pipe(
-          finalize(() => {
-            this.resetForm();
-          })
-        )
-        .subscribe({
-          next: result => {
-            this.setStatus('success', 'Password berhasil diubah!');
-          },
-          error: error => {
-            this.setStatus('error', error.error.data.message);
-          }
+    this.userService.changePassword(this.formData)
+      .pipe(
+        finalize(() => {
+          // Kita tidak otomatis reset form di sini agar user bisa melihat pesan sukses
+          // Reset form bisa dipanggil manual atau setelah delay jika diinginkan
+          this.cdr.markForCheck();
         })
-    } catch (error: any) {
-      console.error('Change password error:', error);
-      this.setStatus('error', error.error?.message || 'Server error');
-    }
+      )
+      .subscribe({
+        next: () => {
+          this.setStatus('success', 'Password berhasil diubah!');
+          // Opsional: Reset form setelah sukses
+          setTimeout(() => this.resetForm(), 2000);
+        },
+        error: (err) => {
+          const errMsg = err.error?.data?.message || err.error?.message || 'Gagal mengubah password';
+          this.setStatus('error', errMsg);
+        }
+      });
   }
 
-  /**
-   * Reset semua password visibility ke hidden.
-   */
-  private resetVisibility(): void {
-    this.showCurrentPassword = false;
-    this.showNewPassword = false;
-    this.showConfirmPassword = false;
-  }
-
-  /**
-   * Update status dengan change detection.
-   */
   private setStatus(status: FormStatus, message: string): void {
     this.status = status;
     this.statusMessage = message;
     this.cdr.markForCheck();
   }
 
-  /**
-   * Utility: Capitalize string first letter.
-   */
-  private capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  private resetVisibility(): void {
+    this.showCurrentPassword = false;
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
   }
 
-  /**
-   * Mock delay untuk testing.
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }

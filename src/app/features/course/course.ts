@@ -1,14 +1,16 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {StudentCourse} from '../../core/models/student_course.model';
-import {StudentCourseService} from '../../core/services/student_course.service';
-import {CommonModule} from '@angular/common';
+import { ChangeDetectorRef, Component, HostBinding, OnInit, Signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+// Models & Services
+import { StudentCourse } from '../../core/models/student_course.model';
+import { StudentCourseService } from '../../core/services/student_course.service';
+import { LayoutService } from '../../core/services/layout.service'; // Wajib untuk responsivitas layout
 
 @Component({
   selector: 'app-course',
   templateUrl: './course.html',
   styleUrls: [
     '../../../styles/shared/header.css',
-    '../../../styles/shared/qr-modal.css',
     '../../../styles/shared/course-card.css',
     './course.css'
   ],
@@ -16,33 +18,44 @@ import {CommonModule} from '@angular/common';
   imports: [CommonModule]
 })
 export class CourseComponent implements OnInit {
+  // --- Layout State ---
+  // Signal untuk mendeteksi perubahan sidebar dari LayoutService
+  isSidebarCollapsed: Signal<boolean>;
+
   // --- Data Properties ---
   studentCourses: StudentCourse[] = [];
-  loading: boolean = true;
+  isLoading: boolean = true; // Renamed from 'loading' to standard 'isLoading'
 
   constructor(
     private studentCourseService: StudentCourseService,
+    private layoutService: LayoutService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {
+    this.isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
+  }
 
   // --- Lifecycle Hooks ---
 
   ngOnInit(): void {
-    this.loadActiveSessions();
+    this.fetchEnrolledCourses();
   }
 
-  /** Mengambil daftar sesi kelas yang sedang aktif */
-  private loadActiveSessions(): void {
-    this.loading = true;
+  /**
+   * Mengambil daftar matakuliah yang diambil mahasiswa.
+   * Renamed: loadActiveSessions -> fetchEnrolledCourses (Lebih deskriptif)
+   */
+  private fetchEnrolledCourses(): void {
+    this.isLoading = true;
     this.studentCourseService.getEnrollCourse().subscribe({
       next: (response) => {
         this.studentCourses = response.data;
-        this.loading = false;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Failed to load course:', err);
-        this.loading = false;
+        console.error('Failed to load courses:', err);
+        this.isLoading = false;
+        // Opsional: Tambahkan logika toast error di sini
       }
     });
   }

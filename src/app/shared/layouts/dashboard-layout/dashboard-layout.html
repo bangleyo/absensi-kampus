@@ -1,7 +1,11 @@
-<div class="app-wrapper">
+<div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed()">
+
   <app-sidebar></app-sidebar>
-  <div class="main-content" id="mainContent">
-    <app-topbar></app-topbar>
-    <router-outlet></router-outlet>
-  </div>
+  <app-topbar></app-topbar>
+
+  <main class="main-content">
+    <div class="page-container"> <router-outlet></router-outlet>
+    </div>
+  </main>
+
 </div>

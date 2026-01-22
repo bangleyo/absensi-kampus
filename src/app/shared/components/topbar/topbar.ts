@@ -1,12 +1,10 @@
-/**
- * Topbar component displaying user info and controls.
- * Syncs with session storage for real-time user state.
- */
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {AuthService} from '../../../core/services/auth.service';
-import {HeaderService} from '../../../core/services/header.service';
-import {Observable} from 'rxjs';
-import {AsyncPipe, NgIf} from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, Signal } from '@angular/core';
+import { AsyncPipe, NgIf } from '@angular/common';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { HeaderService } from '../../../core/services/header.service';
+import { LayoutService } from '../../../core/services/layout.service'; // Pastikan path sesuai
 
 interface UserSession {
   readonly role: 'STUDENT' | 'ADMIN' | 'LECTURER';
@@ -19,52 +17,66 @@ interface UserSession {
   selector: 'app-topbar',
   templateUrl: './topbar.html',
   styleUrls: ['./topbar.css'],
-  imports: [
-    AsyncPipe,
-    NgIf
-  ],
+  standalone: true,
+  imports: [AsyncPipe, NgIf],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopbarComponent implements OnInit {
-  pageTitle$: Observable<string>;
-  user: UserSession | null = null;
-  displayName: string | undefined;
+  // Observables & Signals
+  readonly pageTitle$: Observable<string>;
+  // Mengambil signal dari service agar reaktif terhadap perubahan sidebar
+  readonly isSidebarCollapsed: Signal<boolean>;
+
+  // State
+  currentUser: UserSession | null = null;
+  displayName: string = '';
 
   constructor(
     private readonly authService: AuthService,
-    private headerService: HeaderService,
-    private cdr: ChangeDetectorRef
+    private readonly headerService: HeaderService,
+    private readonly layoutService: LayoutService, // Inject LayoutService
+    private readonly router: Router
   ) {
     this.pageTitle$ = this.headerService.currentPageTitle;
+    this.isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
   }
 
   ngOnInit(): void {
-    this.initializeUserSession();
-    this.cdr.detectChanges();
+    this.loadUserSession();
+    this.syncTitleWithRoute();
   }
 
-  /**
-   * Load and validate user session from storage.
-   * Auto-logout invalid STUDENT sessions.
-   */
-  private initializeUserSession(): void {
+  private loadUserSession(): void {
     const sessionData = sessionStorage.getItem('userSession');
     if (!sessionData) return;
 
     try {
-      this.user = JSON.parse(sessionData);
+      const parsedSession = JSON.parse(sessionData) as UserSession;
 
-      // Validate STUDENT session
-      if (this.user?.role === 'STUDENT' && !this.user?.nim) {
+      if (parsedSession.role === 'STUDENT' && !parsedSession.nim) {
         this.authService.logout();
         return;
       }
 
-      // Set display name (name prioritized)
-      this.displayName = this.user?.name;
-    } catch {
-      // Corrupted session data
+      this.currentUser = parsedSession;
+      this.displayName = parsedSession.name || 'User';
+
+    } catch (error) {
+      console.warn('Invalid session data detected, clearing storage.');
       sessionStorage.removeItem('userSession');
     }
+  }
+
+  private syncTitleWithRoute(): void {
+    const currentUrl = this.router.url;
+    let title = 'Dashboard';
+
+    if (currentUrl.includes('/course')) title = 'Matakuliah';
+    else if (currentUrl.includes('/class-session')) title = 'Sesi Kelas';
+    else if (currentUrl.includes('/student')) title = 'Mahasiswa';
+    else if (currentUrl.includes('/profile')) title = 'Setting';
+    else if (currentUrl.includes('/dashboard')) title = 'Dashboard';
+
+    this.headerService.updateTitle(title);
   }
 }

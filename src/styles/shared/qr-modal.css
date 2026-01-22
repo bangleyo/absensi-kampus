@@ -1,7 +1,6 @@
 /* ========================================
    src/styles/shared/qr-modal.css
    Shared QR Scanner Modal Component
-   Reusable di semua QR scan feature
 ========================================= */
 
 .qr-modal {
@@ -25,6 +24,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px); /* Efek blur agar fokus ke modal */
 }
 
 .qr-modal-content {
@@ -32,129 +32,197 @@
   top: 50%;
   left: 50%;
   width: 90%;
-  max-width: 400px;
-  border-radius: 16px;
+  max-width: 420px; /* Sedikit diperlebar agar lega di desktop */
+  border-radius: 20px;
   background: #fff;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   transform: translate(-50%, -50%);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .qr-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 16px 24px;
   color: #fff;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .qr-header h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .qr-close {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: none;
-  background: none;
-  font-size: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 20px;
   color: #fff;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
+.qr-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* --- SCANNER AREA FIXES --- */
 .qr-scanner-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 350px;
-  padding: 20px;
-  text-align: center;
+
+  /* Tinggi fix, tapi fleksibel di mobile (lihat media query bawah) */
+  height: 320px;
+  width: 100%;
+
+  padding: 0; /* Hapus padding agar video bisa full */
   position: relative;
+  background-color: #000; /* Background hitam saat loading kamera */
+  overflow: hidden; /* PENTING: Mencegah video luber keluar container */
 }
 
 #qrVideo {
-  max-width: 100%;
-  border-radius: 12px;
+  /* SOLUSI OVERLAP: Paksa video agar tidak pernah lebih besar dari container */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Memastikan video full tanpa gepeng */
 }
 
 .qr-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Agar klik tembus ke bawah jika perlu */
 }
 
 .qr-frame {
   position: relative;
-  width: 250px;
-  height: 250px;
-  border: 3px solid #667eea;
-  border-radius: 12px;
-  background: rgba(102, 126, 234, 0.1);
+  width: 240px;
+  height: 240px;
+  border-radius: 20px;
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5); /* Efek gelap di luar kotak fokus */
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
+/* Sudut-sudut bingkai scan (Corner Markers) */
+.qr-frame::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background: linear-gradient(to right, #667eea, #667eea) top left,
+  linear-gradient(to right, #667eea, #667eea) top right,
+  linear-gradient(to right, #667eea, #667eea) bottom left,
+  linear-gradient(to right, #667eea, #667eea) bottom right;
+  background-size: 40px 40px;
+  background-repeat: no-repeat;
+}
+
+/* Animasi Garis Scan */
 .qr-frame::before {
   content: '';
   position: absolute;
-  top: -3px;
-  right: -3px;
-  bottom: -3px;
-  left: -3px;
-  border-radius: 16px;
-  background: linear-gradient(
-    45deg,
-    transparent 49%,
-    rgba(255, 255, 255, 0.5) 50%,
-    transparent 51%
-  );
-  animation: spin 2s linear infinite;
+  width: 100%;
+  height: 2px;
+  background: #667eea;
+  box-shadow: 0 0 4px #667eea;
+  top: 50%;
+  animation: scanLine 2s ease-in-out infinite;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes scanLine {
+  0% { top: 10%; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 90%; opacity: 0; }
 }
 
+.qr-overlay p {
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  position: absolute;
+  bottom: 20px; /* Teks instruksi selalu di dalam area hitam video */
+}
+
+/* --- STATUS & BUTTONS (SPACING FIX) --- */
 .qr-status {
-  margin: 0 20px 20px;
-  padding: 12px 20px;
-  border-radius: 8px;
-  background: #f8f9fa;
+  margin: 24px 24px 16px; /* Memberi jarak aman dari area video (Top Margin 24px) */
+  padding: 12px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #333;
+  color: #334155;
   text-align: center;
+  border: 1px solid #e2e8f0;
 }
 
-.qr-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 20px 20px;
-}
-
+/* Button Batal (Ghost Style) */
 .btn-secondary {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  background: #6c757d;
+  display: block; /* Block agar mudah di-center */
+  width: fit-content;
+  margin: 0 auto 24px; /* Center horizontal + Jarak bawah */
+  padding: 10px 32px;
+
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #fff;
+  color: #64748b;
+  background: transparent;
+  border: 2px solid #cbd5e1;
+  border-radius: 50px;
+
   cursor: pointer;
+  transition: all 0.2s;
 }
 
+.btn-secondary:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+/* ========== Mobile Responsive ========== */
 @media (max-width: 768px) {
   .qr-modal-content {
-    width: 95%;
-    margin: 20px;
+    width: 85%;
+    max-width: 360px;
+    margin: 0; /* Pastikan tidak ada margin yg menggeser posisi center */
+  }
+
+  .qr-scanner-container {
+    height: 280px; /* Kurangi tinggi scanner di HP agar tidak makan tempat */
+  }
+
+  .qr-frame {
+    width: 200px; /* Perkecil kotak fokus */
+    height: 200px;
+  }
+
+  /* Geser sedikit instruksi teks ke atas di layar kecil */
+  .qr-overlay p {
+    bottom: 15px;
+    font-size: 13px;
   }
 }

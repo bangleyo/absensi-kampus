@@ -1,16 +1,14 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {CommonModule, NgIf} from '@angular/common';
-import {SharedTableComponent} from '../../../shared/table/table';
-import {Course} from '../../../core/models/course.model';
-import {SharedModalComponent} from '../../../shared/modal/modal';
-import {CourseService} from '../../../core/services/course.service';
-import {Router} from '@angular/router';
-import {ModalService} from '../../../core/services/modal.service';
-import {finalize} from 'rxjs';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ClassSessionService} from '../../../core/services/class_session.service';
-import {ClassSession} from '../../../core/models/class_session.model';
-import {QRService} from '../../../core/services/qr.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+
+// Components & Services
+import { SharedTableComponent } from '../../../shared/table/table';
+import { ClassSessionService } from '../../../core/services/class_session.service';
+import { ClassSession } from '../../../core/models/class_session.model';
+import { QRService } from '../../../core/services/qr.service';
 
 @Component({
   selector: 'app-class-session',
@@ -18,109 +16,143 @@ import {QRService} from '../../../core/services/qr.service';
   styleUrls: [
     '../../../../styles/shared/header.css',
     '../../../shared/table/table.css',
-    './classsession.css',
+    '../../../../styles/shared/admin-pages.css'
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, SharedTableComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ClassSessionComponent  implements OnInit, AfterViewInit {
+export class ClassSessionComponent implements OnInit {
+  // Data State
   classSessions: ClassSession[] = [];
   loading = true;
-  @ViewChild('modalRef') modalRef!: SharedModalComponent;
+
+  // Table Configuration
   tableColumns = [
     { key: 'course.name', label: 'Matkul' },
-    { key: 'course.code', label: 'Code' },
+    { key: 'course.code', label: 'Kode' },
     { key: 'lecturer', label: 'Dosen' },
     { key: 'place', label: 'Ruangan' },
-    { key: 'timeRange', label: 'Jam Masuk' }
+    { key: 'timeRange', label: 'Waktu' }
   ];
 
-  // DELETE STATE
+  // Delete Modal State
   showDeleteModal = false;
-  selectedClassSession: any = null;
+  selectedClassSession: ClassSession | null = null;
   deleteLoading = false;
 
   constructor(
     private classSessionService: ClassSessionService,
+    private qrService: QRService,
     private router: Router,
-    private readonly cdr: ChangeDetectorRef,
-    public modalService: ModalService,
-    private qrService : QRService
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() { this.loadCourses(); }
-
-  ngAfterViewInit() {
-    // Direct register component instance, bukan VCR
-    this.modalService.register(this.modalRef);
-    // Pastikan modalRef ada
-    console.log('Modal registered:', this.modalRef); // Debug
+  ngOnInit(): void {
+    this.loadClassSessions();
   }
 
-  loadCourses() {
-    this.classSessionService.getClassSession().subscribe(res => {
-      this.classSessions = res.data;
-      this.loading = false;
-      this.cdr.detectChanges();
+  /**
+   * Load data sesi kelas dari API
+   */
+  loadClassSessions(): void {
+    this.loading = true;
+    this.classSessionService.getClassSession()
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.classSessions = res.data || [];
+        },
+        error: (err) => {
+          console.error('Gagal memuat sesi kelas:', err);
+        }
+      });
+  }
+
+  // --- ACTIONS ---
+
+  createClassSession(): void {
+    this.router.navigate(['/admin/class-session/form']);
+  }
+
+  editClassSession(session: any): void {
+    this.router.navigate(['/admin/class-session/form'], {
+      queryParams: { id: session.id }
     });
   }
 
-  createClassSession() {
-    this.router.navigate([`/admin/class-session/form`]);
-  }
-  deleteClassSession(course: any) {
-    this.selectedClassSession = course;
-    this.showDeleteModal = true;
-  }
-  editClassSession(classSessions: any) {
-    this.router.navigate([`/admin/class-session/form`], {
-      queryParams: {
-        id: classSessions.id
+  /**
+   * Download QR Code sebagai file PNG
+   */
+  downloadQR(item: any): void {
+    if (!item.qrToken) {
+      alert('QR Token tidak tersedia.');
+      return;
+    }
+
+    this.qrService.downloadQr(item.qrToken).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        // Nama file: QR_Code_[NamaMatkul]_[Kode].png
+        const safeName = (item.course?.name || 'Session').replace(/[^a-z0-9]/gi, '_');
+        link.download = `QR_${safeName}_${item.course?.code || ''}.png`;
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Download gagal:', err);
+        alert('Gagal mengunduh QR Code.');
       }
     });
   }
 
+  // --- DELETE LOGIC ---
+
+  deleteClassSession(session: any): void {
+    this.selectedClassSession = session;
+    this.showDeleteModal = true;
+  }
+
   confirmDelete(): void {
-    // if (!this.selectedClassSession) return;
-    // console.log('confirmDelete:', this.selectedClassSession);
-    // this.deleteLoading = true;
-    // this.classSessions.deleteCourse(this.selectedClassSession.id)
-    //   .pipe(
-    //     finalize(() => {
-    //       this.closeDeleteModal()
-    //       this.ngOnInit()
-    //     })
-    //   )
-    //   .subscribe()
+    if (!this.selectedClassSession) return;
+
+    this.deleteLoading = true;
+    this.cdr.detectChanges();
+
+    // Asumsi service memiliki method delete (sesuaikan jika namanya berbeda)
+    // Jika belum ada di service, Anda perlu menambahkannya: deleteClassSession(id)
+    this.classSessionService.deleteClassSession(this.selectedClassSession.id)
+      .pipe(
+        finalize(() => {
+          this.deleteLoading = false;
+          this.closeDeleteModal();
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          // Reload data setelah sukses hapus
+          this.loadClassSessions();
+        },
+        error: (err) => {
+          console.error('Delete error:', err);
+          alert('Gagal menghapus sesi kelas.');
+        }
+      });
   }
 
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedClassSession = null;
-    this.deleteLoading = false;
-  }
-
-  protected downloadQR(item: any) {
-    this.qrService.downloadQr(item.qrToken).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.href = url;
-
-        link.download = `QR_Code_${item.course.name}${item.course.code}.png`;
-
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-        this.ngOnInit();
-      },
-      error: (err) => {
-        console.error('Download gagal:', err);
-        alert('Gagal mendownload QR Code. Pastikan server merespon dengan benar.');
-      }
-    })
   }
 }

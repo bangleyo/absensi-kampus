@@ -66,4 +66,8 @@ export class ClassSessionService {
     };
     return this.http.post(`${this.apiUrl}/attendance/submit`, body);
   }
+
+  deleteClassSession(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/attendance/${id}`);
+  }
 }

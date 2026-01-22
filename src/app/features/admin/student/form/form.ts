@@ -1,34 +1,45 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, NgForm} from '@angular/forms';
-import {finalize} from 'rxjs';
-import {CourseService} from '../../../../core/services/course.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Course} from '../../../../core/models/course.model';
-import {Student} from '../../../../core/models/student.model';
-import {StudentService} from '../../../../core/services/student.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
+
+// Services & Models
+import { StudentService } from '../../../../core/services/student.service';
+// Jika Student model belum ada field 'major', Anda bisa gunakan 'any' sementara atau update modelnya
+import { Student } from '../../../../core/models/student.model';
 
 type Mode = 'create' | 'edit';
 
 @Component({
-  selector: 'app-create',
+  selector: 'app-admin-student-form',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './form.html',
   styleUrls: [
-    './form.css',
     '../../../../../styles/shared/header.css',
+    '../../../../../styles/shared/admin-pages.css'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
 })
 export class StudentFormComponent implements OnInit {
-  formData: Student = { id: 0, nim: '', name: '' };
-  mode: Mode = 'create';  // Default create
-  @ViewChild('nameCodeForm') nameCodeForm!: NgForm;
+  @ViewChild('studentForm') studentForm!: NgForm;
+
+  // Extend interface Student secara lokal jika model belum diupdate
+  formData: any = { id: 0, nim: '', name: '', major: null };
+
+  mode: Mode = 'create';
+  isLoading = false;
+
+  // List Jurusan (Hardcoded / Enum Style)
+  majors: string[] = [
+    'Teknik Informatika',
+    'Sistem Informasi'
+  ];
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private studentService : StudentService,
+    private studentService: StudentService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -36,54 +47,83 @@ export class StudentFormComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
-        this.formData.id = params['id'];
-        this.formData.name = params['name'];
-        this.formData.nim = params['nim'];
-        this.mode = 'edit'
-        this.cdr.detectChanges()
+        this.mode = 'edit';
+        this.formData = {
+          id: Number(params['id']),
+          name: params['name'] || '',
+          nim: params['nim'] || '',
+          // Pastikan parameter query juga mengirim 'major' jika ingin auto-populate saat edit
+          major: params['major'] || null
+        };
+        this.cdr.detectChanges();
       }
     });
   }
 
+  // --- ACTIONS ---
+
+  onSubmit(form: NgForm): void {
+    if (form.invalid) return;
+    this.mode === 'create' ? this.createStudent() : this.updateStudent();
+  }
+
   resetForm(): void {
-    this.nameCodeForm.resetForm();
-    this.formData = { id: 0, nim: '', name: '' };
-    this.cdr.detectChanges()
+    this.studentForm.resetForm();
+    // Reset ke default value
+    this.formData = { id: 0, nim: '', name: '', major: null };
+    this.mode = 'create';
+    this.cdr.detectChanges();
   }
 
-  protected onNameCodeSubmit(form: NgForm) {
-    this.mode === 'create' ? this.addCourse() : this.updateCourse();
-  }
-
-  private async addCourse(): Promise<void> {
-    try {
-      this.studentService.createStudent(this.formData.name, this.formData.nim)
-        .pipe(
-          finalize(() => {
-            this.router.navigate(['/admin/student']);
-          })
-        )
-        .subscribe()
-    } catch (error: any) {
-      console.log(error);
-    }
-  }
-
-  private updateCourse(): void {
-    try {
-      this.studentService.updateStudent(this.formData.id, this.formData.name, this.formData.nim)
-        .pipe(
-          finalize(() => {
-            this.router.navigate(['/admin/student']);
-          })
-        )
-        .subscribe()
-    } catch (error: any) {
-      console.log(error);
-    }
-  }
-
-  protected back() {
+  back(): void {
     this.router.navigate(['/admin/student']);
+  }
+
+  // --- API CALLS ---
+
+  private createStudent(): void {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    // Update argumen createStudent sesuai kebutuhan backend (tambahkan parameter major)
+    this.studentService.createStudent(this.formData.name, this.formData.nim, this.formData.major)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/admin/student']);
+        },
+        error: (err) => {
+          console.error('Gagal membuat student:', err);
+          alert('Gagal menambah mahasiswa. Pastikan NIM belum terdaftar.');
+        }
+      });
+  }
+
+  private updateStudent(): void {
+    this.isLoading = true;
+    this.cdr.detectChanges();
+
+    // Update argumen updateStudent sesuai kebutuhan backend
+    this.studentService.updateStudent(this.formData.id, this.formData.name, this.formData.nim, this.formData.major)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/admin/student']);
+        },
+        error: (err) => {
+          console.error('Gagal update student:', err);
+          alert('Gagal memperbarui data mahasiswa.');
+        }
+      });
   }
 }

@@ -1,41 +1,57 @@
 <div class="dashboard-header">
-  <h2>{{ mode === 'create' ? 'Tambah Matakuliah' : 'Edit Matakuliah' }}</h2>
+  <h2>Tambah Matakuliah Mahasiswa</h2>
+  <p>Tambahkan matakuliah ke KRS mahasiswa: <strong>{{ name }}</strong></p>
 </div>
 
-
-<section class="profile-section" aria-labelledby="form-title">
+<section class="form-section">
   <form
-    #nameCodeForm="ngForm"
-    class="name-code-form"
-    (ngSubmit)="onNameCodeSubmit(nameCodeForm)">
+    #enrollForm="ngForm"
+    (ngSubmit)="onSubmit(enrollForm)"
+    novalidate>
 
     <div class="form-group">
-      <label class="form-label">
-        Mata Kuliah<span class="required">*</span>
+      <label for="courseId" class="form-label">
+        Pilih Mata Kuliah <span class="required">*</span>
       </label>
+
       <div class="input-group">
         <select
+          id="courseId"
           class="form-input"
-          name="id"
-          [(ngModel)]="formData"
+          name="courseId"
+          [(ngModel)]="selectedCourseId"
+          required
           #courseSelect="ngModel"
-          required>
-          <option [ngValue]="null" disabled>Pilih Mata Kuliah</option>
-          <option *ngFor="let c of course" [ngValue]="c">{{ c.name }} - {{ c.code }}</option>
+          [class.error]="courseSelect.invalid && (courseSelect.dirty || enrollForm.submitted)">
+
+          <option [ngValue]="null" disabled>-- Pilih Mata Kuliah --</option>
+          <option *ngFor="let c of courses" [ngValue]="c.id">
+            {{ c.name }} ({{ c.code }})
+          </option>
         </select>
+      </div>
+
+      <div class="error-message" *ngIf="courseSelect.invalid && (courseSelect.dirty || enrollForm.submitted)">
+        Mata kuliah wajib dipilih.
       </div>
     </div>
 
     <div class="form-actions">
       <button
         type="button"
-        class="btn btn-secondary"
-        (click)="back()">
+        class="btn-secondary"
+        (click)="back()"
+        [disabled]="isLoading">
         Batal
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="nameCodeForm.invalid">
-        Tambah Matakuliah
+
+      <button
+        type="submit"
+        class="btn-add"
+        [disabled]="enrollForm.invalid || isLoading">
+        {{ isLoading ? 'Menambahkan...' : 'Tambah ke KRS' }}
       </button>
     </div>
+
   </form>
 </section>

@@ -1,218 +1,176 @@
 /* ==========================================================================
-   ADMIN COURSE table STYLES
-   Responsive table dengan CRUD actions & pagination
+   SHARED TABLE STYLES
+   Generic Responsive Table Component
    ========================================================================== */
 
-/* Container utama dengan horizontal scroll untuk mobile */
+/* --- CONTAINER & LAYOUT --- */
 .admin-table-container {
   max-width: 100%;
   overflow-x: auto;
-}
-
-/* Action buttons di atas table */
-.table-actions {
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Table card wrapper */
-.table-wrapper {
-  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.table-wrapper {
+  width: 100%;
   overflow: hidden;
 }
 
-/* Table base styles */
+/* --- TABLE BASE --- */
 .responsive-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.9rem; /* Ukuran font lebih konsisten */
 }
 
 .responsive-table th,
 .responsive-table td {
-  padding: 16px 12px;
+  padding: 16px 20px; /* Padding lebih lega */
   text-align: left;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* Sticky table header */
+/* Sticky Header */
 .responsive-table th {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-/* Row hover effect */
-.responsive-table tbody tr:hover {
-  background: #f8f9ff;
+/* Row Interactions */
+.responsive-table tbody tr {
+  transition: background-color 0.2s;
 }
 
-/* Action column */
+.responsive-table tbody tr:hover {
+  background-color: #f8f9ff;
+}
+
+/* --- ACTION BUTTONS (Generic) --- */
 .actions {
   white-space: nowrap;
+  display: flex;
+  gap: 8px; /* Jarak antar tombol action */
 }
 
-/* ==========================================================================
-   BUTTON STYLES
-   ========================================================================== */
-
 .btn {
-  padding: 8px 12px;
+  padding: 8px 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  margin-right: 4px;
-  margin-left: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-back {
-  background: #ffffff;
-  color: #764ba2; /* Teks warna ungu utama Anda */
-  border: 1px solid #e0e0e0; /* Border abu-abu sangat muda */
-  box-shadow: 0 2px 4px rgba(118, 75, 162, 0.08); /* Shadow ungu tipis */
-  transition: all 0.3s ease;
-  margin-right: auto;
-}
-
-.btn-back:hover {
-  background: #764ba2;
-  color: #ffffff;
-  border-color: #764ba2;
-  box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3); /* Shadow menguat saat hover */
-}
-
+/* Tombol Edit */
 .btn-edit {
-  background: #4caf50;
-  color: white;
+  background-color: #e0f2f1;
+  color: #00695c;
+  border: 1px solid #b2dfdb;
 }
 
-.btn-delete {
-  background: #f44336;
-  color: white;
-}
-
-.btn-page {
-  background: #f0f0f0;
-  color: #333;
-  margin: 0 2px;
-}
-
-/* Hover & active states */
-.btn-page.active,
-.btn:hover,
-.btn-page.active:hover {
-  background: #667eea !important;
-  color: white;
+.btn-edit:hover {
+  background-color: #b2dfdb;
   transform: translateY(-1px);
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Tombol Delete */
+.btn-delete {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
 }
 
-/* ==========================================================================
-   PAGINATION
-   ========================================================================== */
+.btn-delete:hover {
+  background-color: #ffcdd2;
+  transform: translateY(-1px);
+}
 
+/* --- PAGINATION SECTION --- */
 .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 24px;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 16px;
-  background: #fafbfc;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
+  padding: 16px 20px;
+  background-color: #fafbfc;
+  border-top: 1px solid #eee;
 }
 
 .pagination-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #666;
+  gap: 10px;
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
 .items-select {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
   background: white;
-  font-size: 14px;
-  min-width: 60px;
+  color: #334155;
+  cursor: pointer;
 }
 
 .items-select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  outline: 2px solid #667eea;
+  border-color: transparent;
 }
 
 .page-nav {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
+.btn-page {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 6px;
+}
 
+.btn-page:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-page.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8fafc;
+}
+
+/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
   .pagination {
     flex-direction: column;
-    gap: 12px;
-  }
-
-  .page-nav {
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 16px;
+    align-items: center;
   }
 
   .responsive-table th,
   .responsive-table td {
-    padding: 12px 8px;
-    font-size: 13px;
-  }
-
-  .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .btn {
-    padding: 6px 10px;
-    font-size: 12px;
-    margin-right: 0;
-  }
-}
-
-/* Print styles */
-@media print {
-  .table-actions,
-  .pagination {
-    display: none;
-  }
-
-  .table-wrapper {
-    box-shadow: none;
+    padding: 12px;
   }
 }

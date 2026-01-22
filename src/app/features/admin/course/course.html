@@ -1,5 +1,10 @@
-<div class="table-actions">
-  <button class="btn btn-primary" (click)="createCourse()">+ Tambah Matakuliah</button>
+<div class="dashboard-header">
+  <h2>Manajemen Matakuliah</h2>
+  <p>Kelola daftar matakuliah yang tersedia di sistem</p>
+</div>
+
+<div class="page-actions">
+  <button class="btn-add" (click)="createCourse()">+ Tambah Matakuliah</button>
 </div>
 
 <app-shared-table
@@ -8,28 +13,41 @@
   [loading]="loading">
 
   <ng-template #actionTemplate let-item>
-    <button class="btn btn-edit" (click)="editCourse(item)">Edit</button>
-    <button class="btn btn-delete" (click)="deleteCourse(item)">Delete</button>
+    <div class="actions">
+      <button class="btn btn-edit" (click)="editCourse(item)" title="Edit">
+        Edit
+      </button>
+      <button class="btn btn-delete" (click)="deleteCourse(item)" title="Hapus">
+        Hapus
+      </button>
+    </div>
   </ng-template>
 </app-shared-table>
 
-<!-- DELETE MODAL -->
 <div class="delete-modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
   <div class="delete-modal" (click)="$event.stopPropagation()">
+
     <div class="delete-modal-header">
-      <h3>Konfirmasi Hapus</h3>
+      <h3>Hapus Matakuliah?</h3>
     </div>
+
     <div class="delete-modal-body">
-      <p>Hapus matakuliah "<strong>{{ selectedCourse?.name }}</strong>" ({{ selectedCourse?.code }})?</p>
-      <p class="delete-warning">Data tidak bisa dikembalikan.</p>
+      <p>
+        Anda akan menghapus: <br>
+        <strong>{{ selectedCourse?.name }}</strong> <br>
+        <span class="text-muted">({{ selectedCourse?.code }})</span>
+      </p>
+      <span class="delete-warning">⚠️ Data yang dihapus tidak dapat dikembalikan.</span>
     </div>
+
     <div class="delete-modal-actions">
       <button class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading">
         Batal
       </button>
-      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
-        {{ deleteLoading ? 'Menghapus...' : 'Hapus' }}
+      <button class="btn btn-delete" (click)="confirmDelete()" [disabled]="deleteLoading">
+        {{ deleteLoading ? 'Menghapus...' : 'Ya, Hapus' }}
       </button>
     </div>
+
   </div>
 </div>

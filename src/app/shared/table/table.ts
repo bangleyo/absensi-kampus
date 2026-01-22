@@ -1,7 +1,6 @@
-// import { Component, Input, Output, EventEmitter, ContentChild, TemplateRef } from '@angular/common';
+import { Component, ContentChild, EventEmitter, Input, OnChanges, Output, SimpleChanges, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {Component, ContentChild, Input, TemplateRef} from '@angular/core';
 
 @Component({
   selector: 'app-shared-table',
@@ -10,52 +9,70 @@ import {Component, ContentChild, Input, TemplateRef} from '@angular/core';
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-export class SharedTableComponent {
-  @Input() data: any[] = [];
+export class SharedTableComponent<T> implements OnChanges {
+  // Data Input (Generic Type T)
+  @Input() data: T[] = [];
   @Input() columns: { key: string; label: string }[] = [];
   @Input() loading: boolean = false;
 
-  // Custom template untuk kolom Actions agar tetap fleksibel
+  // Custom Actions Template
   @ContentChild('actionTemplate') actionTemplate?: TemplateRef<any>;
 
   // Pagination State
   currentPage = 1;
   itemsPerPage = 5;
-  paginationOptions = [5, 10, 50];
+  paginationOptions = [5, 10, 25, 50];
+  totalPages = 0;
+  paginatedData: T[] = [];
+  pages: number[] = [];
 
-  get totalPages(): number {
-    return Math.ceil(this.data.length / this.itemsPerPage);
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  get paginatedData(): any[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.data.slice(start, start + this.itemsPerPage);
-  }
-
-  setPage(page: number): void {
-    // Validasi agar tidak kurang dari 1 atau lebih dari totalPages
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+  ngOnChanges(changes: SimpleChanges): void {
+    // Recalculate pagination when data changes
+    if (changes['data'] || changes['loading']) {
+      this.calculatePagination();
     }
   }
 
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-  }
-
-  resolveValue(item: any, key: string) {
+  /**
+   * Mengambil value dari nested object (ex: 'course.name')
+   */
+  resolveValue(item: any, key: string): any {
     if (!key) return '';
-
-    // Memecah 'course.name' menjadi ['course', 'name']
-    // Lalu masuk ke dalam object satu per satu
     return key.split('.').reduce((obj, property) => {
-      return obj ? obj[property] : null;
+      return obj ? obj[property] : '-'; // Return '-' jika data null
     }, item);
   }
 
-  protected readonly Math = Math;
+  // --- PAGINATION LOGIC ---
+
+  onItemsPerPageChange(): void {
+    this.currentPage = 1;
+    this.calculatePagination();
+  }
+
+  setPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedData();
+    }
+  }
+
+  private calculatePagination(): void {
+    if (!this.data || this.data.length === 0) {
+      this.totalPages = 0;
+      this.pages = [];
+      this.paginatedData = [];
+      return;
+    }
+
+    this.totalPages = Math.ceil(this.data.length / this.itemsPerPage);
+    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    this.updatePaginatedData();
+  }
+
+  private updatePaginatedData(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedData = this.data.slice(start, end);
+  }
 }

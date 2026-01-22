@@ -1,58 +1,93 @@
-<div class="sidebar" id="sidebar">
+<div class="sidebar" [class.collapsed]="isCollapsed()">
+
   <div class="sidebar-header">
-    <div class="sidebar-title">AuraTrack</div>
-    <button class="toggle-sidebar" (click)="toggleSidebar()">☰</button>
+    <div class="header-content">
+      <div class="sidebar-title" *ngIf="!isCollapsed()">AuraTrack</div>
+      <div class="sidebar-logo-mini" *ngIf="isCollapsed()">AT</div>
+    </div>
+    <button class="toggle-sidebar" (click)="toggleSidebar()" aria-label="Toggle Navigation">
+      ☰
+    </button>
   </div>
-  <div class="user-card">
-    <div class="user-avatar-lg">👤</div>
-    <div *ngIf="user?.role === 'STUDENT'" class="user-name" id="sidebarUserName">{{ user?.name }}</div>
-    <div *ngIf="user?.role === 'STUDENT'" class="user-nim" id="sidebarUserNim">{{ displayName }}</div>
-    <div class="user-program">{{ user?.role === 'STUDENT' ? user?.major : 'ADMIN'}}</div>
-  </div>
-  <ul class="nav-menu">
-    <li class="nav-item">
-      <a class="nav-link"
-         (click)="navigateTo('dashboard', 'Dashboard', $event)"
-         href="javascript:void(0)">
-        <span class="nav-icon">📊</span>
-        <span>Dashboard</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         (click)="navigateTo('course', 'Matakuliah', $event)"
-         href="javascript:void(0)">
-        <span class="nav-icon">📚</span>
-        <span>Matakuliah</span>
-      </a>
-    </li>
-    <li class="nav-item" *ngIf="this.user?.role === 'ADMIN'">
-      <a class="nav-link"
-         (click)="navigateTo('class-session', 'Sesi Kelas', $event)"
-         href="javascript:void(0)">
-        <span class="nav-icon">👨‍🏫</span>
-        <span>Sesi Kelas</span>
-      </a>
-    </li>
-    <li class="nav-item" *ngIf="this.user?.role === 'ADMIN'">
-      <a class="nav-link"
-         (click)="navigateTo('student', 'MAHASISWA', $event)"
-         href="javascript:void(0)">
-        <span class="nav-icon">👨</span>
-        <span>Mahasiswa</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="javascript:void(0)" (click)="navigateTo('profile', 'Setting')">
-        <span class="nav-icon">🔐</span>
-        <span>Setting</span>
-      </a>
-    </li>
-  </ul>
+
+  <ng-container *ngIf="user() as currentUser">
+
+    <div class="user-card" *ngIf="!isCollapsed()">
+      <div class="user-avatar-lg">👤</div>
+
+      <ng-container *ngIf="currentUser.role === 'STUDENT'">
+        <div class="user-name">{{ currentUser.name }}</div>
+        <div class="user-nim">{{ displayName }}</div>
+      </ng-container>
+
+      <div class="user-program">
+        {{ currentUser.role === 'STUDENT' ? currentUser.major : 'ADMINISTRATOR' }}
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="isRouteActive('dashboard')"
+          (click)="navigateTo('dashboard', 'Dashboard')"
+          title="Dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text" *ngIf="!isCollapsed()">Dashboard</span>
+        </button>
+      </li>
+
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="isRouteActive('course')"
+          (click)="navigateTo('course', 'Matakuliah')"
+          title="Matakuliah">
+          <span class="nav-icon">📚</span>
+          <span class="nav-text" *ngIf="!isCollapsed()">Matakuliah</span>
+        </button>
+      </li>
+
+      <ng-container *ngIf="currentUser.role === 'ADMIN'">
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            [class.active]="isRouteActive('class-session')"
+            (click)="navigateTo('class-session', 'Sesi Kelas')"
+            title="Sesi Kelas">
+            <span class="nav-icon">👨‍🏫</span>
+            <span class="nav-text" *ngIf="!isCollapsed()">Sesi Kelas</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            [class.active]="isRouteActive('student')"
+            (click)="navigateTo('student', 'Mahasiswa')"
+            title="Mahasiswa">
+            <span class="nav-icon">👨</span>
+            <span class="nav-text" *ngIf="!isCollapsed()">Mahasiswa</span>
+          </button>
+        </li>
+      </ng-container>
+
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          [class.active]="isRouteActive('profile')"
+          (click)="navigateTo('profile', 'Setting')"
+          title="Setting">
+          <span class="nav-icon">🔐</span>
+          <span class="nav-text" *ngIf="!isCollapsed()">Setting</span>
+        </button>
+      </li>
+    </ul>
+  </ng-container>
+
   <div class="logout-link">
-    <button class="nav-link" (click)="logout()">
+    <button class="nav-link logout-btn" (click)="logout()" title="Logout">
       <span class="nav-icon">🚪</span>
-      <span>Logout</span>
+      <span class="nav-text" *ngIf="!isCollapsed()">Logout</span>
     </button>
   </div>
 </div>

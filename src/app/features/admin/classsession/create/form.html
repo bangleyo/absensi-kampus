@@ -1,0 +1,136 @@
+<div class="dashboard-header">
+  <h2>{{ mode === 'create' ? 'Tambah Sesi Kelas' : 'Edit Sesi Kelas' }}</h2>
+  <p>{{ mode === 'create' ? 'Jadwalkan sesi pertemuan baru' : 'Perbarui informasi sesi kelas' }}</p>
+</div>
+
+<section class="form-section">
+  <form
+    #sessionForm="ngForm"
+    (ngSubmit)="onNameCodeSubmit(sessionForm)"
+    novalidate>
+
+    <div class="form-group">
+      <label for="courseId" class="form-label">
+        Mata Kuliah <span class="required">*</span>
+      </label>
+      <div class="input-group">
+        <select
+          id="courseId"
+          class="form-input"
+          name="courseId"
+          [(ngModel)]="formData.courseId"
+          required
+          [class.error]="courseId.invalid && (courseId.dirty || sessionForm.submitted)"
+          #courseId="ngModel">
+          <option [ngValue]="null" disabled>-- Pilih Mata Kuliah --</option>
+          <option *ngFor="let c of courses" [ngValue]="c.id">
+            {{ c.name }} ({{ c.code }})
+          </option>
+        </select>
+      </div>
+      <div class="error-message" *ngIf="courseId.invalid && (courseId.dirty || sessionForm.submitted)">
+        Mata kuliah wajib dipilih.
+      </div>
+    </div>
+
+    <div class="form-group form-row">
+      <div>
+        <label for="startTime" class="form-label">Waktu Mulai <span class="required">*</span></label>
+        <input
+          id="startTime"
+          type="datetime-local"
+          class="form-input"
+          name="startTime"
+          [(ngModel)]="formData.startTime"
+          required
+          #startTime="ngModel"
+          [class.error]="startTime.invalid && (startTime.dirty || sessionForm.submitted)">
+      </div>
+
+      <div>
+        <label for="endTime" class="form-label">Waktu Selesai <span class="required">*</span></label>
+        <input
+          id="endTime"
+          type="datetime-local"
+          class="form-input"
+          name="endTime"
+          [(ngModel)]="formData.endTime"
+          required
+          #endTime="ngModel"
+          [class.error]="endTime.invalid && (endTime.dirty || sessionForm.submitted)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="lecturer" class="form-label">Dosen Pengajar <span class="required">*</span></label>
+      <input
+        id="lecturer"
+        type="text"
+        class="form-input"
+        name="lecturer"
+        placeholder="Nama Dosen..."
+        [(ngModel)]="formData.lecturer"
+        required
+        #lecturer="ngModel"
+        [class.error]="lecturer.invalid && (lecturer.dirty || sessionForm.submitted)">
+    </div>
+
+    <div class="form-group">
+      <label for="place" class="form-label">Ruangan / Tempat <span class="required">*</span></label>
+      <input
+        id="place"
+        type="text"
+        class="form-input"
+        name="place"
+        placeholder="Contoh: Lab Komputer 1"
+        [(ngModel)]="formData.place"
+        required
+        #place="ngModel"
+        [class.error]="place.invalid && (place.dirty || sessionForm.submitted)">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Titik Koordinat Presensi <span class="required">*</span></label>
+
+      <div class="location-box">
+        <p class="location-info">
+          Pastikan Anda berada di lokasi kelas. Sistem akan mengambil koordinat GPS perangkat Anda.
+        </p>
+
+        <button type="button" class="btn-secondary" style="width: 100%; border-style: dashed;" (click)="getCurrentLocation()">
+          📍 Ambil Lokasi Saat Ini
+        </button>
+
+        <input type="hidden" name="lat" [(ngModel)]="formData.latitude" required>
+        <input type="hidden" name="lng" [(ngModel)]="formData.longitude" required>
+
+        <div class="location-coords" *ngIf="formData.latitude && formData.longitude">
+          <span>Lat: {{ formData.latitude | number:'1.6-6' }}</span>
+          <span>Lng: {{ formData.longitude | number:'1.6-6' }}</span>
+        </div>
+
+        <div class="error-message" *ngIf="(!formData.latitude || !formData.longitude) && sessionForm.submitted" style="text-align: center; margin-top: 8px;">
+          Lokasi wajib diambil sebelum menyimpan.
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn-secondary"
+        (click)="mode === 'create' ? resetForm() : back()"
+        [disabled]="isLoading">
+        {{ mode === 'create' ? 'Bersihkan' : 'Batal' }}
+      </button>
+
+      <button
+        type="submit"
+        class="btn-add"
+        [disabled]="sessionForm.invalid || !formData.latitude || isLoading">
+        {{ isLoading ? 'Menyimpan...' : (mode === 'create' ? 'Simpan Sesi' : 'Simpan Perubahan') }}
+      </button>
+    </div>
+
+  </form>
+</section>

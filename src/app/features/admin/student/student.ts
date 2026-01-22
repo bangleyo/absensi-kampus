@@ -1,98 +1,133 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {SharedTableComponent} from '../../../shared/table/table';
-import {Student} from '../../../core/models/student.model';
-import {StudentService} from '../../../core/services/student.service';
-import {Router} from '@angular/router';
-import {finalize} from 'rxjs';
-import {NgIf} from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
+
+// Components & Services
+import { SharedTableComponent } from '../../../shared/table/table';
+import { Student } from '../../../core/models/student.model';
+import { StudentService } from '../../../core/services/student.service';
 
 @Component({
-  selector: 'app-student',
-  imports: [
-    SharedTableComponent,
-    NgIf
-  ],
+  selector: 'app-admin-student',
   templateUrl: './student.html',
   styleUrls: [
     '../../../../styles/shared/header.css',
     '../../../shared/table/table.css',
-    './student.css',
+    '../../../../styles/shared/admin-pages.css'
   ],
-  standalone: true
+  standalone: true,
+  imports: [CommonModule, FormsModule, SharedTableComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminStudentComponent implements OnInit {
-  student: Student[] = [];
+  // Data State
+  students: Student[] = [];
   loading = true;
-  // @ViewChild('modalRef') modalRef!: SharedModalComponent;
+
+  // Table Configuration
   tableColumns = [
-    { key: 'name', label: 'Nama' },
+    { key: 'name', label: 'Nama Lengkap' },
     { key: 'nim', label: 'NIM' },
+    { key: 'major', label: 'Program Studi' }, // <-- KOLOM BARU DITAMBAHKAN
   ];
+
+  // Delete Modal State
   showDeleteModal = false;
-  selectedStudent: any = null;
+  selectedStudent: Student | null = null;
   deleteLoading = false;
 
   constructor(
     private studentService: StudentService,
-    private cdr: ChangeDetectorRef,
     private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() { this.loadStudents(); }
-
-  private loadStudents() {
-    this.studentService.getStudents().subscribe(res => {
-      this.student = res.data;
-      this.loading = false;
-      this.cdr.detectChanges();
-    });
+  ngOnInit(): void {
+    this.loadStudents();
   }
 
-  protected createStudent() {
-    this.router.navigate([`/admin/student/form`]);
+  /**
+   * Load data mahasiswa dari API
+   */
+  loadStudents(): void {
+    this.loading = true;
+    this.studentService.getStudents()
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.students = res.data || [];
+        },
+        error: (err) => {
+          console.error('Gagal memuat data mahasiswa:', err);
+        }
+      });
   }
 
-  protected deleteStudent(item: any) {
-    this.selectedStudent = item;
-    this.showDeleteModal = true;
+  // --- ACTIONS ---
+
+  createStudent(): void {
+    this.router.navigate(['/admin/student/form']);
   }
 
-  protected editStudent(item: any) {
-    this.router.navigate([`/admin/student/form`],{
+  editStudent(item: any): void {
+    this.router.navigate(['/admin/student/form'], {
       queryParams: {
         id: item.id,
         name: item.name,
         nim: item.nim,
+        major: item.major // Pastikan major juga dikirim saat edit
       }
     });
   }
 
-  protected studentCourse(item: any) {
-    this.router.navigate([`/admin/student/course`],{
+  studentCourse(item: any): void {
+    this.router.navigate(['/admin/student/course'], {
       queryParams: {
         nim: item.nim,
         name: item.name,
       }
-    })
+    });
+  }
+
+  // --- DELETE LOGIC ---
+
+  deleteStudent(item: any): void {
+    this.selectedStudent = item;
+    this.showDeleteModal = true;
   }
 
   confirmDelete(): void {
     if (!this.selectedStudent) return;
-    console.log('confirmDelete:', this.selectedStudent);
+
     this.deleteLoading = true;
+    this.cdr.detectChanges();
+
     this.studentService.deleteStudent(this.selectedStudent.id)
       .pipe(
         finalize(() => {
-          this.closeDeleteModal()
-          this.ngOnInit()
+          this.deleteLoading = false;
+          this.closeDeleteModal();
+          this.cdr.detectChanges();
         })
       )
-      .subscribe()
+      .subscribe({
+        next: () => {
+          this.loadStudents();
+        },
+        error: (err) => {
+          console.error('Gagal menghapus mahasiswa:', err);
+          alert('Gagal menghapus data mahasiswa.');
+        }
+      });
   }
 
   closeDeleteModal(): void {
     this.showDeleteModal = false;
     this.selectedStudent = null;
-    this.deleteLoading = false;
   }
 }

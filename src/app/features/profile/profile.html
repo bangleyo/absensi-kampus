@@ -1,12 +1,15 @@
-<!-- profile.html - Clean & Professional Password Form -->
+<div class="dashboard-header">
+  <h2>Pengaturan Akun</h2>
+</div>
+
 <section class="profile-section" aria-labelledby="profile-title">
+
   <form
     #passwordForm="ngForm"
     class="change-password-form"
     (ngSubmit)="onPasswordChange(passwordForm)"
     novalidate>
 
-    <!-- 1. Current Password Field -->
     <div class="form-group">
       <label for="currentPassword" class="form-label">
         Password Lama<span class="required">*</span>
@@ -23,30 +26,27 @@
           minlength="6"
           #currentPassword="ngModel"
           [class.error]="currentPassword.invalid && (currentPassword.dirty || passwordForm.submitted)"
-          aria-describedby="currentPassword-error"
-          autocomplete="current-password">
+          autocomplete="current-password"
+          placeholder="Masukkan password lama">
 
         <button
           type="button"
           class="toggle-password"
           (click)="togglePasswordVisibility('current')"
-          [attr.aria-label]="showCurrentPassword ? 'Sembunyikan password lama' : 'Tampilkan password lama'"
-          [title]="showCurrentPassword ? 'Sembunyikan' : 'Tampilkan'">
-          <i [class]="showCurrentPassword ? 'icon-eye-slash' : 'icon-eye'"></i>
+          [attr.aria-label]="showCurrentPassword ? 'Sembunyikan' : 'Tampilkan'"
+          tabindex="-1">
+          <span aria-hidden="true">{{ showCurrentPassword ? '🙈' : '👁️' }}</span>
         </button>
       </div>
 
-      <div
-        id="currentPassword-error"
-        class="error-message"
-        role="alert"
-        *ngIf="currentPassword.invalid && (currentPassword.dirty || passwordForm.submitted)">
-        <span *ngIf="currentPassword.errors?.['required']">Password lama wajib diisi</span>
-        <span *ngIf="currentPassword.errors?.['minlength']">Minimal 6 karakter</span>
-      </div>
+      @if (currentPassword.invalid && (currentPassword.dirty || passwordForm.submitted)) {
+        <div class="error-message" role="alert">
+          @if (currentPassword.errors?.['required']) { <span>Password lama wajib diisi</span> }
+          @if (currentPassword.errors?.['minlength']) { <span>Minimal 6 karakter</span> }
+        </div>
+      }
     </div>
 
-    <!-- 2. New Password Field -->
     <div class="form-group">
       <label for="newPassword" class="form-label">
         Password Baru<span class="required">*</span>
@@ -64,31 +64,27 @@
           pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
           #newPassword="ngModel"
           [class.error]="newPassword.invalid && (newPassword.dirty || passwordForm.submitted)"
-          aria-describedby="newPassword-error"
-          autocomplete="new-password">
+          autocomplete="new-password"
+          placeholder="Min. 8 karakter, Huruf Besar, Kecil & Angka">
 
         <button
           type="button"
           class="toggle-password"
           (click)="togglePasswordVisibility('new')"
-          [attr.aria-label]="showNewPassword ? 'Sembunyikan password baru' : 'Tampilkan password baru'"
-          [title]="showNewPassword ? 'Sembunyikan' : 'Tampilkan'">
-          <i [class]="showNewPassword ? 'icon-eye-slash' : 'icon-eye'"></i>
+          tabindex="-1">
+          <span aria-hidden="true">{{ showNewPassword ? '🙈' : '👁️' }}</span>
         </button>
       </div>
 
-      <div
-        id="newPassword-error"
-        class="error-message"
-        role="alert"
-        *ngIf="newPassword.invalid && (newPassword.dirty || passwordForm.submitted)">
-        <span *ngIf="newPassword.errors?.['required']">Password baru wajib diisi</span>
-        <span *ngIf="newPassword.errors?.['minlength']">Minimal 8 karakter</span>
-        <span *ngIf="newPassword.errors?.['pattern']">Huruf besar, kecil, angka minimal 8 char</span>
-      </div>
+      @if (newPassword.invalid && (newPassword.dirty || passwordForm.submitted)) {
+        <div class="error-message" role="alert">
+          @if (newPassword.errors?.['required']) { <span>Password baru wajib diisi</span> }
+          @if (newPassword.errors?.['minlength']) { <span>Minimal 8 karakter</span> }
+          @if (newPassword.errors?.['pattern']) { <span>Harus mengandung huruf besar, kecil, dan angka</span> }
+        </div>
+      }
     </div>
 
-    <!-- 3. Confirm Password Field -->
     <div class="form-group">
       <label for="confirmPassword" class="form-label">
         Konfirmasi Password<span class="required">*</span>
@@ -105,53 +101,42 @@
           [match]="formData.newPassword"
           #confirmPassword="ngModel"
           [class.error]="confirmPassword.invalid && (confirmPassword.dirty || passwordForm.submitted)"
-          aria-describedby="confirmPassword-error"
-          autocomplete="new-password">
+          autocomplete="new-password"
+          placeholder="Ulangi password baru">
 
         <button
           type="button"
           class="toggle-password"
           (click)="togglePasswordVisibility('confirm')"
-          [attr.aria-label]="showConfirmPassword ? 'Sembunyikan konfirmasi' : 'Tampilkan konfirmasi'"
-          [title]="showConfirmPassword ? 'Sembunyikan' : 'Tampilkan'">
-          <i [class]="showConfirmPassword ? 'icon-eye-slash' : 'icon-eye'"></i>
+          tabindex="-1">
+          <span aria-hidden="true">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
         </button>
       </div>
 
-      <div
-        id="confirmPassword-error"
-        class="error-message"
-        role="alert"
-        *ngIf="confirmPassword.invalid && (confirmPassword.dirty || passwordForm.submitted)">
-        <span *ngIf="confirmPassword.errors?.['required']">Konfirmasi wajib diisi</span>
-        <span *ngIf="confirmPassword.errors?.['matching']">Password tidak cocok</span>
-      </div>
+      @if (confirmPassword.invalid && (confirmPassword.dirty || passwordForm.submitted)) {
+        <div class="error-message" role="alert">
+          @if (confirmPassword.errors?.['required']) { <span>Konfirmasi wajib diisi</span> }
+          @if (confirmPassword.errors?.['matching']) { <span>Password tidak cocok</span> }
+        </div>
+      }
     </div>
 
-    <!-- 4. Form Actions -->
     <div class="form-actions">
-      <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="resetForm()">
-        Batal
+      <button type="button" class="btn btn-secondary" (click)="resetForm()">
+        Reset
       </button>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="passwordForm.invalid">
-        Ubah Password
+      <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || status === 'loading'">
+        {{ status === 'loading' ? 'Menyimpan...' : 'Simpan Perubahan' }}
       </button>
     </div>
 
-    <!-- 5. Status Messages -->
-    <div
-      class="form-status"
-      role="status"
-      *ngIf="statusMessage"
-      [class.success]="status === 'success'"
-      [class.error]="status === 'error'">
-      {{ statusMessage }}
-    </div>
+    @if (statusMessage) {
+      <div class="form-status"
+           [class.success]="status === 'success'"
+           [class.error]="status === 'error'"
+           role="status">
+        {{ statusMessage }}
+      </div>
+    }
   </form>
 </section>

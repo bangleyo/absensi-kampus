@@ -1,13 +1,31 @@
-/* Reset CSS Global */
+/* Global Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
-  height: 100%;
-  width: 100%;
-  /* Gunakan font yang sama dengan desain asli */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f5f7fa;
+}
+
+/* --- Shared Page Title Style --- */
+/* Agar semua judul halaman (Dashboard, Course, Profile) seragam */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 1.75rem;
+  color: #1e293b;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Page Container Limiter (Opsional) --- */
+/* Membatasi lebar konten agar enak dibaca di layar lebar */
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
 }

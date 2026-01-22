@@ -13,12 +13,12 @@ export class StudentService {
     return this.http.get<any>(`${this.apiUrl}/student`);
   }
 
-  createStudent(name: string, nim: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/student`, {nim: nim, name: name});
+  createStudent(name: string, nim: string, major: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/student`, {nim: nim, name: name, major: major});
   }
 
-  updateStudent(id: number, name: string, nim: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/student/${id}`, {nim: nim, name: name});
+  updateStudent(id: number, name: string, nim: string, major: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/student/${id}`, {nim: nim, name: name, major: major});
   }
 
   deleteStudent(id: number) {

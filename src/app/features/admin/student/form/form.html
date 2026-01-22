@@ -1,18 +1,17 @@
 <div class="dashboard-header">
   <h2>{{ mode === 'create' ? 'Tambah Mahasiswa' : 'Edit Mahasiswa' }}</h2>
+  <p>{{ mode === 'create' ? 'Daftarkan mahasiswa baru ke dalam sistem' : 'Perbarui data pribadi mahasiswa' }}</p>
 </div>
 
-
-<section class="profile-section" aria-labelledby="form-title">
+<section class="form-section">
   <form
-    #nameCodeForm="ngForm"
-    class="name-code-form"
-    (ngSubmit)="onNameCodeSubmit(nameCodeForm)"
+    #studentForm="ngForm"
+    (ngSubmit)="onSubmit(studentForm)"
     novalidate>
 
     <div class="form-group">
       <label for="nim" class="form-label">
-        NIM<span class="required">*</span>
+        Nomor Induk Mahasiswa (NIM) <span class="required">*</span>
       </label>
 
       <div class="input-group">
@@ -26,23 +25,19 @@
           minlength="3"
           #nim="ngModel"
           [readonly]="mode === 'edit'"
-          [class.error]="nim.invalid && (nim.dirty || nameCodeForm.submitted)"
-          aria-describedby="nim-error">
+          [class.error]="nim.invalid && (nim.dirty || studentForm.submitted)"
+          placeholder="Contoh: 101202001">
       </div>
 
-      <div
-        id="code-error"
-        class="error-message"
-        role="alert"
-        *ngIf="nim.invalid && (nim.dirty || nameCodeForm.submitted)">
-        <span *ngIf="nim.errors?.['required']">NIM wajib diisi</span>
-        <span *ngIf="nim.errors?.['minlength']">Minimal 8 karakter</span>
+      <div class="error-message" *ngIf="nim.invalid && (nim.dirty || studentForm.submitted)">
+        <span *ngIf="nim.errors?.['required']">NIM wajib diisi.</span>
+        <span *ngIf="nim.errors?.['minlength']">Minimal 3 karakter.</span>
       </div>
     </div>
 
     <div class="form-group">
       <label for="name" class="form-label">
-        Nama<span class="required">*</span>
+        Nama Lengkap <span class="required">*</span>
       </label>
 
       <div class="input-group">
@@ -53,33 +48,60 @@
           name="name"
           [(ngModel)]="formData.name"
           required
-          minlength="4"
+          minlength="3"
           #name="ngModel"
-          [class.error]="name.invalid && (name.dirty || nameCodeForm.submitted)"
-          aria-describedby="name-error">
+          [class.error]="name.invalid && (name.dirty || studentForm.submitted)"
+          placeholder="Contoh: Budi Santoso">
       </div>
 
-      <div
-        id="name-error"
-        class="error-message"
-        role="alert"
-        *ngIf="name.invalid && (name.dirty || nameCodeForm.submitted)">
-        <span *ngIf="name.errors?.['required']">Nama wajib diisi</span>
-        <span *ngIf="name.errors?.['minlength']">Minimal 4 karakter</span>
+      <div class="error-message" *ngIf="name.invalid && (name.dirty || studentForm.submitted)">
+        <span *ngIf="name.errors?.['required']">Nama wajib diisi.</span>
+        <span *ngIf="name.errors?.['minlength']">Minimal 3 karakter.</span>
       </div>
     </div>
 
-    <!-- 3. Form Actions -->
+    <div class="form-group">
+      <label for="major" class="form-label">
+        Program Studi <span class="required">*</span>
+      </label>
+
+      <div class="input-group">
+        <select
+          id="major"
+          class="form-input"
+          name="major"
+          [(ngModel)]="formData.major"
+          required
+          #major="ngModel"
+          [class.error]="major.invalid && (major.dirty || studentForm.submitted)">
+
+          <option [ngValue]="null" disabled>-- Pilih Program Studi --</option>
+
+          <option *ngFor="let m of majors" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+
+      <div class="error-message" *ngIf="major.invalid && (major.dirty || studentForm.submitted)">
+        <span *ngIf="major.errors?.['required']">Program studi wajib dipilih.</span>
+      </div>
+    </div>
+
     <div class="form-actions">
       <button
         type="button"
-        class="btn btn-secondary"
-        (click)="mode === 'create' ? resetForm() : back()">
+        class="btn-secondary"
+        (click)="mode === 'create' ? resetForm() : back()"
+        [disabled]="isLoading">
         {{ mode === 'create' ? 'Bersihkan' : 'Batal' }}
       </button>
-      <button type="submit" class="btn btn-primary" [disabled]="nameCodeForm.invalid">
-        {{ mode === 'create' ? 'Tambah Mahasiswa' : 'Update Mahasiswa' }}
+
+      <button
+        type="submit"
+        class="btn-add"
+        [disabled]="studentForm.invalid || isLoading">
+        {{ isLoading ? 'Menyimpan...' : (mode === 'create' ? 'Simpan Data' : 'Simpan Perubahan') }}
       </button>
     </div>
+
   </form>
 </section>

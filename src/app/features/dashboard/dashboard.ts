@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import jsQR from 'jsqr';
@@ -21,74 +21,71 @@ import { ClassSession } from '../../core/models/class_session.model';
 export class DashboardComponent implements OnInit, OnDestroy {
   // --- Data Properties ---
   classSessions: ClassSession[] = [];
-  loading: boolean = true;
+  isLoading = true;
 
-  // --- UI & State Properties ---
-  showQrModals: boolean = false;
-  selectedsessionId?: number;
-  popUpMsg?: string;
+  // --- UI State ---
+  showQrModal = false;
+  selectedSessionId?: number;
+  scannerStatusText = 'Memulai scanner...';
 
-  // --- Scanner & Hardware References ---
+  toastState = {
+    show: false,
+    message: '',
+    type: 'success' as 'success' | 'error'
+  };
+
+  // --- Hardware References ---
   @ViewChild('qrVideo') qrVideoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('qrCanvas') qrCanvasRef!: ElementRef<HTMLCanvasElement>;
 
   private scannerInterval: any;
-  private qrStatusEl?: HTMLElement;
 
   constructor(
     private classSessionService: ClassSessionService,
     private cdr: ChangeDetectorRef
-  ) { }
-
-  // --- Lifecycle Hooks ---
+  ) {}
 
   ngOnInit(): void {
-    this.loadActiveSessions();
+    this.fetchActiveSessions();
   }
 
   ngOnDestroy(): void {
-    this.stopResources();
+    this.stopScannerResources();
   }
 
-  /** Mengambil daftar sesi kelas yang sedang aktif */
-  private loadActiveSessions(): void {
-    this.loading = true;
+  private fetchActiveSessions(): void {
+    this.isLoading = true;
     this.classSessionService.getActiveSession().subscribe({
       next: (response) => {
         this.classSessions = response.data;
-        this.loading = false;
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Failed to load sessions:', err);
-        this.loading = false;
+        console.error('Error fetching sessions:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
 
-  // --- QR Scanner Modal Logic ---
+  // --- QR Scanner Logic ---
 
-  /** Membuka modal dan menginisialisasi kamera */
-  showQrModal(courseId: number): void {
-    this.selectedsessionId = courseId;
-    this.showQrModals = true;
-
-    // Memberi waktu DOM untuk merender elemen video sebelum diakses
-    setTimeout(() => this.startQrScan(), 300);
+  openScanner(courseId: number): void {
+    this.selectedSessionId = courseId;
+    this.showQrModal = true;
+    setTimeout(() => this.initializeCamera(), 300);
   }
 
-  /** Menutup modal dan mematikan semua resource hardware */
-  closeQrModal(): void {
-    this.showQrModals = false;
-    this.selectedsessionId = undefined;
-    this.stopResources();
+  closeScanner(): void {
+    this.showQrModal = false;
+    this.selectedSessionId = undefined;
+    this.stopScannerResources();
+    this.cdr.detectChanges(); // Pastikan modal tertutup secara visual
   }
 
-  /** Menghentikan interval scanner dan aliran kamera */
-  private stopResources(): void {
-    if (this.scannerInterval) {
-      clearInterval(this.scannerInterval);
-    }
+  private stopScannerResources(): void {
+    if (this.scannerInterval) clearInterval(this.scannerInterval);
 
     const videoEl = this.qrVideoRef?.nativeElement;
     if (videoEl?.srcObject) {
@@ -98,115 +95,108 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Scanner Core Engine ---
-
-  /** Inisialisasi MediaDevices untuk scan QR */
-  private startQrScan(): void {
+  private async initializeCamera(): Promise<void> {
     const videoEl = this.qrVideoRef?.nativeElement;
-    this.qrStatusEl = document.getElementById('qrStatus')!;
-
     if (!videoEl) return;
 
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
-    }).then(stream => {
-      videoEl.srcObject = stream;
-      videoEl.play().then(() => {
-        this.qrStatusEl!.textContent = '✅ Kamera Siap';
-        this.scannerInterval = setInterval(() => this.executeFrameScan(), 300);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }
       });
-    }).catch(err => {
-      this.qrStatusEl!.textContent = `❌ Kamera Error: ${err.name}`;
-    });
+
+      videoEl.srcObject = stream;
+      await videoEl.play();
+
+      this.scannerStatusText = '✅ Kamera Siap';
+      this.scannerInterval = setInterval(() => this.scanFrame(), 300);
+
+    } catch (err: any) {
+      this.scannerStatusText = `❌ Kamera Error: ${err.name}`;
+      console.error(err);
+    }
   }
 
-  /** Memproses frame video untuk mencari kode QR */
-  private executeFrameScan(): void {
+  private scanFrame(): void {
     const video = this.qrVideoRef?.nativeElement;
     const canvas = this.qrCanvasRef?.nativeElement;
 
     if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const width = video.videoWidth;
+    const height = video.videoHeight;
 
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.width = width;
+    canvas.height = height;
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'dontInvert',
-    });
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
 
-    if (code) {
-      this.processAttendanceSubmission(code.data);
+    ctx.drawImage(video, 0, 0, width, height);
+    const imageData = ctx.getImageData(0, 0, width, height);
+
+    const code = jsQR(imageData.data, width, height, { inversionAttempts: 'dontInvert' });
+
+    if (code?.data) {
+      this.submitAttendance(code.data);
     }
   }
 
-  // --- Attendance Business Logic ---
+  // --- Attendance Logic ---
 
-  /** Sinkronisasi lokasi GPS dan kirim data ke API */
-  private async processAttendanceSubmission(qrData: string): Promise<void> {
+  private async submitAttendance(qrToken: string): Promise<void> {
     clearInterval(this.scannerInterval);
-
-    let isSuccess = true;
-    let feedbackMsg = '';
+    this.scannerStatusText = '⏳ Mengirim data...';
 
     try {
-      const location = await this.getCurrentLocation();
+      const { lat, lng } = await this.getCurrentLocation();
 
-      this.classSessionService.markAttendance(
-        this.selectedsessionId!,
-        location.lat,
-        location.lng,
-        qrData
-      ).pipe(
-        finalize(() => {
-          this.closeQrModal();
-          this.displayToastNotification(isSuccess, feedbackMsg);
-          this.cdr.detectChanges();
-        })
-      ).subscribe({
-        next: () => feedbackMsg = 'Absensi berhasil dicatat!',
-        error: () => {
-          isSuccess = false;
-          feedbackMsg = 'Gagal mengirim data absensi.';
-        }
-      });
+      this.classSessionService.markAttendance(this.selectedSessionId!, lat, lng, qrToken)
+        .pipe(finalize(() => {
+          this.closeScanner();
+        }))
+        .subscribe({
+          next: () => {
+            this.showToast('Absensi berhasil dicatat!', 'success');
+            this.fetchActiveSessions();
+          },
+          // PERBAIKAN DISINI
+          error: (err) => {
+            console.error('Attendance Error:', err);
+            // Ambil pesan error dari backend jika ada, atau gunakan default
+            const msg = err.error?.data.message || 'Gagal mengirim data absensi (Server Error).';
+            this.showToast(msg, 'error');
+          }
+        });
 
     } catch (err) {
-      this.displayToastNotification(false, 'Gagal mendeteksi lokasi (GPS).');
-      this.closeQrModal();
-      this.cdr.detectChanges();
+      this.showToast('Gagal mendeteksi lokasi (GPS).', 'error');
+      this.closeScanner();
     }
   }
 
-  /** Helper untuk mendapatkan koordinat GPS */
-  private getCurrentLocation(): Promise<{lat: number, lng: number, accuracy: number}> {
+  private getCurrentLocation(): Promise<{lat: number, lng: number}> {
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) return reject('GPS Not Supported');
+      if (!navigator.geolocation) return reject(new Error('GPS Not Supported'));
 
       navigator.geolocation.getCurrentPosition(
-        (pos) => resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy
-        }),
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
         (err) => reject(err),
         { enableHighAccuracy: true, timeout: 10000 }
       );
     });
   }
 
-  // --- UI Notification Helper ---
+  // --- UI Helpers ---
 
-  /** Menampilkan toast notification sesuai status (Success/Failed) */
-  private displayToastNotification(success: boolean, msg: string): void {
-    this.popUpMsg = msg;
-    const targetId = success ? 'successPopup' : 'failedPopup';
-    const element = document.getElementById(targetId);
+  private showToast(message: string, type: 'success' | 'error'): void {
+    this.toastState = { show: true, message, type };
 
-    element?.classList.add('show');
-    setTimeout(() => element?.classList.remove('show'), 3000);
+    // PERBAIKAN UTAMA: Paksa update UI segera saat toast muncul
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.toastState.show = false;
+      this.cdr.detectChanges(); // Update UI lagi saat toast hilang
+    }, 3000);
   }
 }

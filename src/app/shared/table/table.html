@@ -1,22 +1,29 @@
-<div *ngIf="loading" class="loading">Memuat data...</div>
+<div *ngIf="loading" class="loading">
+  <div class="spinner"></div> Memuat data...
+</div>
 
-<div *ngIf="!loading" class="admin-table-container">
+<div *ngIf="!loading && data.length > 0" class="admin-table-container">
   <div class="table-wrapper">
     <table class="responsive-table">
       <thead>
       <tr>
         <th>No</th>
         <th *ngFor="let col of columns">{{ col.label }}</th>
-        <th *ngIf="actionTemplate">Actions</th>
+        <th *ngIf="actionTemplate" class="text-center">Aksi</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let item of paginatedData; let i = index">
         <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-        <td *ngFor="let col of columns">{{ resolveValue(item, col.key) }}</td>
+
+        <td *ngFor="let col of columns">
+          {{ resolveValue(item, col.key) }}
+        </td>
 
         <td class="actions" *ngIf="actionTemplate">
-          <ng-container [ngTemplateOutlet]="actionTemplate" [ngTemplateOutletContext]="{ $implicit: item }">
+          <ng-container
+            [ngTemplateOutlet]="actionTemplate"
+            [ngTemplateOutletContext]="{ $implicit: item }">
           </ng-container>
         </td>
       </tr>
@@ -26,10 +33,11 @@
 
   <div class="pagination">
     <div class="pagination-info">
-      <label>Show:</label>
+      <span>Tampilkan:</span>
       <select [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()" class="items-select">
         <option *ngFor="let opt of paginationOptions" [value]="opt">{{ opt }}</option>
       </select>
+      <span>per halaman</span>
     </div>
 
     <div class="page-nav">
@@ -37,23 +45,30 @@
         class="btn btn-page"
         (click)="setPage(currentPage - 1)"
         [disabled]="currentPage === 1">
-        &larr; Prev
+        &larr;
       </button>
 
-      <button
-        *ngFor="let p of pages"
-        class="btn btn-page"
-        [class.active]="p === currentPage"
-        (click)="setPage(p)">
-        {{ p }}
-      </button>
+      <ng-container *ngFor="let p of pages">
+        <button
+          *ngIf="p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)"
+          class="btn btn-page"
+          [class.active]="p === currentPage"
+          (click)="setPage(p)">
+          {{ p }}
+        </button>
+        <span *ngIf="(p === 1 && currentPage > 3) || (p === totalPages && currentPage < totalPages - 2)" style="align-self:end; padding: 0 4px;">...</span>
+      </ng-container>
 
       <button
         class="btn btn-page"
         (click)="setPage(currentPage + 1)"
         [disabled]="currentPage === totalPages">
-        Next &rarr;
+        &rarr;
       </button>
     </div>
   </div>
+</div>
+
+<div *ngIf="!loading && data.length === 0" class="no-data">
+  Belum ada data tersedia.
 </div>

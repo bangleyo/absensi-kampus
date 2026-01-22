@@ -1,16 +1,37 @@
-/* ========== Dashboard Header ========== */
+/* ========== Dashboard Header (Elegant Accent) ========== */
 .dashboard-header {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  position: relative;
 }
 
 .dashboard-header h2 {
-  font-size: 28px;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 2rem; /* Setara ~32px, terlihat lebih berwibawa */
+  font-weight: 800; /* Lebih tebal dan tegas */
+  color: #1a202c; /* Warna hitam yang lebih modern (dark slate) */
+  margin-bottom: 12px;
+  letter-spacing: -0.5px; /* Jarak antar huruf sedikit dirapatkan agar modern */
+  position: relative;
+  display: inline-block; /* Agar garis aksen mengikuti lebar teks */
+}
+
+/* Menambahkan garis aksen gradien di bawah judul */
+.dashboard-header h2::after {
+  content: '';
+  display: block;
+  width: 80px; /* Lebar garis aksen, tidak perlu sepanjang teks */
+  height: 4px; /* Ketebalan garis */
+  /* Menggunakan gradien yang sama dengan sidebar/topbar */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px; /* Membuat ujung garis sedikit membulat */
+  position: absolute;
+  bottom: -12px; /* Posisi di bawah teks */
+  left: 0;
 }
 
 .dashboard-header p {
-  font-size: 18px;
-  color: #333;
-  font-weight: bold;
+  font-size: 1.1rem; /* Setara ~17.6px */
+  color: #718096; /* Warna abu-abu yang lebih lembut untuk sub-judul */
+  font-weight: 500; /* Tidak perlu bold, cukup medium */
+  margin-top: 20px; /* Memberi jarak karena ada garis aksen di atasnya */
+  line-height: 1.5;
 }

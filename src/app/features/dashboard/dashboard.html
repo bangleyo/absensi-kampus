@@ -2,57 +2,67 @@
   <h2>Kelas Sedang Berlangsung</h2>
 </div>
 
-@if (loading) {
-  <div class="loading">Memuat kelas...</div>
+@if (isLoading) {
+  <div class="loading">
+    <div class="spinner"></div> Memuat kelas...
+  </div>
 } @else {
   <div class="courses-grid">
-    @for (classSession of classSessions; track classSession.id) {
+    @for (session of classSessions; track session.id) {
       <article class="course-card">
         <header class="course-header">
-          <h3 class="course-name">{{ classSession.course.name }}</h3>
-          <div class="course-time">{{ classSession.timeRange }}</div>
+          <h3 class="course-name">{{ session.course.name }}</h3>
+          <div class="course-time">{{ session.timeRange }}</div>
         </header>
 
         <div class="course-body">
           <div class="course-info">
             <div class="info-item">
               <span class="info-icon" aria-hidden="true">⏱️</span>
-              <span>{{ classSession.duration }}</span>
+              <span>{{ session.duration }}</span>
             </div>
             <div class="info-item">
               <span class="info-icon" aria-hidden="true">📍</span>
-              <span>{{ classSession.place }}</span>
+              <span>{{ session.place }}</span>
             </div>
             <div class="info-item">
               <span class="info-icon" aria-hidden="true">👨‍🏫</span>
-              <span>{{ classSession.lecturer }}</span>
+              <span>{{ session.lecturer }}</span>
             </div>
           </div>
 
           <button
             type="button"
             class="attendance-btn"
-            [disabled]="classSession.hasAttended"
-            (click)="showQrModal(classSession.id)">
-            {{ classSession.hasAttended ? 'Sudah Absen' : 'Absen Sekarang' }}
+            [disabled]="session.hasAttended"
+            (click)="openScanner(session.id)">
+            {{ session.hasAttended ? 'Sudah Absen' : 'Absen Sekarang' }}
           </button>
         </div>
       </article>
     }
+
+    @if (classSessions.length === 0) {
+      <div class="no-data">Tidak ada kelas yang berlangsung saat ini.</div>
+    }
   </div>
 }
 
-<div class="success-popup" id="successPopup">{{ popUpMsg }}</div>
-<div class="failed-popup" id="failedPopup">{{ popUpMsg }}</div>
+<div class="toast-popup"
+     [class.show]="toastState.show"
+     [class.error]="toastState.type === 'error'">
+  {{ toastState.message }}
+</div>
 
-@if (showQrModals) {
+@if (showQrModal) {
   <div class="qr-modal show">
-    <div class="qr-modal-overlay" (click)="closeQrModal()"></div>
+    <div class="qr-modal-overlay" (click)="closeScanner()"></div>
     <div class="qr-modal-content">
       <div class="qr-header">
         <h3>Scan QR Code Absensi</h3>
-        <button class="qr-close" (click)="closeQrModal()" aria-label="Close modal">×</button>
+        <button class="qr-close" (click)="closeScanner()" aria-label="Close modal">×</button>
       </div>
+
       <div class="qr-scanner-container">
         <video #qrVideo autoplay muted playsinline></video>
         <canvas #qrCanvas style="display: none;"></canvas>
@@ -61,8 +71,9 @@
           <p>Arahkan kamera ke QR Code</p>
         </div>
       </div>
-      <div class="qr-status" id="qrStatus">Memulai scanner...</div>
-      <button class="btn-secondary" (click)="closeQrModal()">Batal</button>
+
+      <div class="qr-status">{{ scannerStatusText }}</div>
+      <button class="btn-secondary" (click)="closeScanner()">Batal</button>
     </div>
   </div>
 }

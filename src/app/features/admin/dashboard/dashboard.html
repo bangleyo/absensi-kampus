@@ -1,43 +1,56 @@
 <div class="dashboard-header">
-  <h2>Daftar Kelas Sedang Berlangsung</h2>
+  <h2>Monitoring Kelas Aktif</h2>
 </div>
 
 @if (loading) {
-  <div class="loading">Memuat kelas...</div>
+  <div class="loading">
+    <div class="spinner"></div> Memuat data sesi kelas...
+  </div>
 } @else {
   <div class="courses-grid">
-    @for (classSession of classSessions; track classSession.id) {
-      <article
-        class="course-card"
-        [class.expired]="classSession.isExpired"
-        [class.active-card]="!classSession.isExpired"
-        (click)="!classSession.isExpired && processAttendance(classSession.id)"
-        role="button"
-        [attr.aria-disabled]="classSession.isExpired"
-        tabindex="0">
-
+    @for (session of classSessions; track session.id) {
+      <article class="course-card">
         <header class="course-header">
-          <h3 class="course-name">{{ classSession.course.name }}</h3>
-          <div class="course-time">{{ classSession.timeRange }}</div>
+          <h3 class="course-name">{{ session.course.name }}</h3>
+          <div class="course-time">{{ session.timeRange }}</div>
         </header>
 
         <div class="course-body">
           <div class="course-info">
             <div class="info-item">
-              <span class="info-icon">⏱️</span>
-              <span>{{ classSession.duration }}</span>
+              <span class="info-icon" aria-hidden="true">⏱️</span>
+              <span>{{ session.duration }}</span>
             </div>
             <div class="info-item">
-              <span class="info-icon">📍</span>
-              <span>{{ classSession.place }}</span>
+              <span class="info-icon" aria-hidden="true">📍</span>
+              <span>{{ session.place }}</span>
             </div>
             <div class="info-item">
-              <span class="info-icon">👨‍🏫</span>
-              <span>{{ classSession.lecturer }}</span>
+              <span class="info-icon" aria-hidden="true">👨‍🏫</span>
+              <span>{{ session.lecturer }}</span>
             </div>
           </div>
+
+          <button
+            type="button"
+            class="attendance-btn"
+            (click)="navigateToDetail(session.id)">
+            Lihat Kehadiran
+          </button>
         </div>
       </article>
     }
+
+    @if (classSessions.length === 0) {
+      <div class="no-data">
+        Tidak ada sesi kelas yang aktif saat ini.
+      </div>
+    }
   </div>
 }
+
+<div class="toast-popup"
+     [class.show]="toastState.show"
+     [class.error]="toastState.type === 'error'">
+  {{ toastState.message }}
+</div>

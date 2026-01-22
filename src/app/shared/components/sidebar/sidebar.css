@@ -1,143 +1,257 @@
+/* Sidebar Main Container */
 .sidebar {
   width: 280px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 20px;
+  padding: 24px 20px;
   min-height: 100vh;
+
+  /* Fixed position agar tetap di kiri saat scroll */
   position: fixed;
   left: 0;
   top: 0;
+
   overflow-y: auto;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+
+  /* Z-Index 100 ensures it stays above the Topbar (which is z-index 90) */
   z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Mini Sidebar State */
 .sidebar.collapsed {
-  width: 0;
-  padding: 0;
-  overflow: hidden;
+  width: 80px;
+  padding: 24px 12px;
 }
 
+/* --- HEADER SECTION --- */
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  height: 50px;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  border-bottom: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
 
 .sidebar-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.sidebar-logo-mini {
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .toggle-sidebar {
-  display: none;
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   border: none;
-  color: white;
-  font-size: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px;
+  border-radius: 8px;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.toggle-sidebar:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* --- USER CARD SECTION --- */
 .user-card {
   background: rgba(255, 255, 255, 0.1);
-  padding: 16px;
-  border-radius: 12px;
+  padding: 20px 15px;
+  border-radius: 16px;
   margin-bottom: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
 }
 
 .user-avatar-lg {
-  font-size: 48px;
-  margin-bottom: 12px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 12px auto;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .user-name {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 700;
   margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-nim {
-  font-size: 12px;
-  opacity: 0.8;
-  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
 }
 
 .user-program {
-  font-size: 11px;
-  opacity: 0.7;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
-  border-radius: 4px;
   display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
 }
 
+/* --- NAVIGATION MENU --- */
 .nav-menu {
   list-style: none;
-  margin-bottom: 30px;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
 }
 
 .nav-item {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 12px 16px;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  background: transparent;
   border: none;
-  background: none;
-  font-size: 15px;
-  font-weight: 500;
   width: 100%;
-  text-align: left;
   font-family: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   transform: translateX(4px);
 }
 
+.sidebar.collapsed .nav-link:hover {
+  transform: scale(1.05);
+}
+
+/* ACTIVE STATE */
 .nav-link.active {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  border-left: 3px solid white;
-  padding-left: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+  width: 4px;
+  background-color: #fff;
+  border-radius: 0 4px 4px 0;
+  opacity: 0.8;
+}
+
+/* Mini Sidebar specific */
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.collapsed .nav-link.active::before {
+  display: none;
 }
 
 .nav-icon {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
-  flex-shrink: 0;
+  font-size: 1.35rem;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* --- LOGOUT SECTION --- */
 .logout-link {
+  margin-top: auto;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.logout-btn {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 50, 50, 0.2);
+}
+
+/* --- RESPONSIVE LOGIC --- */
 @media (max-width: 768px) {
   .sidebar {
-    position: absolute;
-    height: 100vh;
-    z-index: 200;
+    width: 80px; /* Default Mini di Mobile */
+    padding: 24px 10px;
   }
+
+  /* Jika user menekan toggle (expand), sidebar melebar menimpa konten */
+  .sidebar:not(.collapsed) {
+    width: 280px;
+    padding: 24px 20px;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+
   .toggle-sidebar {
     display: block;
   }

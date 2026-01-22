@@ -1,0 +1,331 @@
+/* ==========================================================================
+   src/styles/shared/admin-pages.css
+   SHARED STYLES FOR ADMIN PAGES
+   Contains: Page Actions, Modals, Toasts, Utilities
+   ========================================================================== */
+
+:host {
+  display: block;
+  /* Animasi transisi jika ada perubahan margin dari layout utama */
+  transition: all 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   1. PAGE ACTIONS & BUTTONS
+   -------------------------------------------------------------------------- */
+.page-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+/* Primary Add Button (Gradient) */
+.btn-add {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Secondary Action Buttons (e.g. Download, View Course) */
+.btn-outline-blue, .btn-download {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-outline-blue:hover, .btn-download:hover {
+  background-color: #bbdefb;
+  transform: translateY(-1px);
+}
+
+.btn-outline-purple, .btn-course {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-outline-purple:hover, .btn-course:hover {
+  background-color: #e1bee7;
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   2. DELETE CONFIRMATION MODAL
+   -------------------------------------------------------------------------- */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.delete-modal {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.delete-modal-header {
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #fee2e2;
+}
+
+.delete-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.delete-modal-body {
+  padding: 24px;
+  text-align: center;
+  color: #475569;
+}
+
+.delete-warning {
+  margin-top: 12px;
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #fff1f2;
+  padding: 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.delete-modal-actions {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* --------------------------------------------------------------------------
+   3. TOAST NOTIFICATIONS
+   -------------------------------------------------------------------------- */
+.toast-popup {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2000;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: #f1f8f4;
+  color: #1b5e20;
+  border-left: 6px solid #2e7d32;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.toast-popup.error {
+  background: #fdecea;
+  color: #c62828;
+  border-left-color: #d32f2f;
+}
+
+.toast-popup.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   4. UTILITIES
+   -------------------------------------------------------------------------- */
+.loading, .no-data {
+  text-align: center;
+  padding: 80px 20px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   5. SHARED FORM STYLES
+   -------------------------------------------------------------------------- */
+.form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  max-width: 600px; /* Lebar optimal untuk form admin */
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.form-label .required {
+  color: #e11d48;
+  margin-left: 4px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1e293b;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.error-message {
+  margin-top: 6px;
+  color: #ef4444;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Button Group di Form */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Tombol Secondary (Batal/Reset) */
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Responsive Mobile */
+@media (max-width: 600px) {
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  .btn-add, .btn-secondary {
+    width: 100%;
+  }
+}
+/* ... (Kode sebelumnya) ... */
+
+/* --------------------------------------------------------------------------
+   6. FORM UTILITIES (Grid & Extras)
+   -------------------------------------------------------------------------- */
+
+/* Grid 2 Kolom untuk Input Pendek (Waktu, dll) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Styling Khusus Box Lokasi/GPS */
+.location-box {
+  background-color: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.location-info {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.location-coords {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+/* Responsive adjustment for form row */
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

@@ -1,39 +1,51 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif;
-  background: #f5f7fa;
-  min-height: 100vh;
-  display: flex;
-}
-
+/* --- LAYOUT WRAPPER --- */
 .app-wrapper {
   display: flex;
   min-height: 100vh;
+  background-color: #f5f7fa;
+  position: relative;
+  overflow-x: hidden;
 }
 
+/* --- MAIN CONTENT AREA (The Template) --- */
+/* Class ini bertindak sebagai container utama untuk SEMUA halaman anak */
 .main-content {
   flex: 1;
+  width: 100%;
+
+  /* 1. Handling Topbar Fixed */
+  /* Topbar height (~80px) + Gap (20px) = 100px */
+  padding-top: 100px;
+
+  /* 2. Handling Sidebar Fixed */
+  /* Sidebar width (280px) */
   margin-left: 280px;
-  padding: 20px;
-  transition: all 0.3s ease;
+
+  /* 3. Global Page Padding */
+  /* Ini memberikan jarak "bernapas" yang konsisten untuk semua halaman */
+  padding-right: 24px;
+  padding-bottom: 40px;
+  padding-left: 24px;
+
+  /* Animasi Transisi Halus saat Sidebar berubah */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
 }
 
-.main-content.expanded {
-  margin-left: 0;
+/* --- STATE: SIDEBAR COLLAPSED (MINI) --- */
+/* Otomatis aktif saat layout mendeteksi sidebar menutup */
+.app-wrapper.sidebar-collapsed .main-content {
+  margin-left: 80px; /* Lebar Mini Sidebar */
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
+/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
+    /* Di Mobile, defaultnya Mini Sidebar */
+    margin-left: 80px;
+
+    /* Padding sedikit dikecilkan untuk layar sempit */
+    padding-top: 90px;
+    padding-right: 16px;
+    padding-left: 16px;
   }
 }

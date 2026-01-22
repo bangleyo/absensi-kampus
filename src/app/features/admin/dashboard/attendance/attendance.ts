@@ -1,68 +1,99 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {SharedTableComponent} from '../../../../shared/table/table';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AttendanceService} from '../../../../core/services/attendance.service';
-import {AttendanceDetail} from '../../../../core/models/attendance.model';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
+
+// Components & Services
+import { SharedTableComponent } from '../../../../shared/table/table';
+import { AttendanceService } from '../../../../core/services/attendance.service';
+import { AttendanceDetail } from '../../../../core/models/attendance.model';
 
 @Component({
-  selector: 'app-admin-course',
+  selector: 'app-admin-attendance-detail', // Selector diperbaiki
   templateUrl: './attendance.html',
   styleUrls: [
-    '../../../../../styles/shared/header.css',
-    '../../../../shared/table/table.css',
-    './attendance.css',
+    '../../../../../styles/shared/header.css',      // Header Style
+    '../../../../shared/table/table.css',           // Table Style
+    '../../../../../styles/shared/admin-pages.css'  // Shared Admin Style (Gantikan attendance.css)
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule, SharedTableComponent, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminDashboardAttendanceComponent implements OnInit {
-  id: number | any;
-  attendanceUser: AttendanceDetail[] = []
+  id!: number;
+  attendanceUser: AttendanceDetail[] = [];
   loading = true;
+
+  // Table Config
   tableColumns = [
-    { key: 'name', label: 'Nama' },
+    { key: 'name', label: 'Nama Mahasiswa' },
     { key: 'nim', label: 'NIM' },
     { key: 'timestamp', label: 'Waktu Absen' },
-    { key: 'valid', label: 'Valid' },
+    { key: 'valid', label: 'Status Validasi' },
   ];
 
   constructor(
     private attendanceService: AttendanceService,
     private router: Router,
-    private readonly cdr: ChangeDetectorRef,
-    private route : ActivatedRoute
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {
-    this.id = this.route.snapshot.params['id']
-    this.loadAttendance(this.id)
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.params['id'];
+    if (idParam) {
+      this.id = Number(idParam);
+      this.loadAttendance(this.id);
+    } else {
+      this.back();
+    }
   }
 
-  loadAttendance(id: number) {
-    this.attendanceService.getUserAttendance(id).subscribe(res => {
-      this.attendanceUser = res.data;
-      this.loading = false;
-      this.cdr.detectChanges();
-    })
+  loadAttendance(id: number): void {
+    this.loading = true;
+    this.attendanceService.getUserAttendance(id)
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.attendanceUser = res.data || [];
+        },
+        error: (err) => {
+          console.error('Gagal memuat data kehadiran:', err);
+        }
+      });
   }
 
-  protected back() {
-    this.router.navigate([`/admin/dashboard`])
+  back(): void {
+    this.router.navigate(['/admin/dashboard']);
   }
 
-  protected downloadReport() {
-    this.attendanceService.downloadReport(this.id).subscribe((blob) => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `report-absensi.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      this.cdr.detectChanges();
+  downloadReport(): void {
+    if (!this.id) return;
+
+    // Optional: Tambahkan loading state khusus download jika perlu
+    this.attendanceService.downloadReport(this.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Format nama file: Laporan_Absensi_[ID].xlsx
+        a.download = `Laporan_Absensi_Sesi_${this.id}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+
+        // Cleanup
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Download error:', err);
+        alert('Gagal mengunduh laporan.');
+      }
     });
   }
 }

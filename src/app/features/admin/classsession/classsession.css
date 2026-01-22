@@ -1,77 +1,112 @@
-/* Match profile.css gradient theme */
+/* ========================================
+   ADMIN CLASS SESSION STYLES
+   ========================================= */
+
+/* --- ACTION BAR --- */
+.page-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-add {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* --- CUSTOM BUTTONS --- */
+.btn-download {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-download:hover {
+  background-color: #bbdefb;
+  transform: translateY(-1px);
+}
+
+/* --- DELETE MODAL (Shared Style) --- */
 .delete-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
   backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
 .delete-modal {
   background: white;
-  border-radius: 12px;
-  max-width: 420px;
   width: 90%;
-  max-height: 80vh;
+  max-width: 400px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease-out;
-}
-
-@keyframes modalSlideIn {
-  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .delete-modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 20px;
   text-align: center;
+  border-bottom: 1px solid #fee2e2;
 }
 
 .delete-modal-header h3 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 1.25rem;
 }
 
 .delete-modal-body {
-  padding: 1.5rem;
+  padding: 24px;
+  text-align: center;
+  color: #475569;
 }
 
 .delete-warning {
-  color: #e74c3c;
-  font-size: 14px;
-  margin-top: 0.5rem;
+  margin-top: 12px;
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #fff1f2;
+  padding: 8px;
+  border-radius: 6px;
+  display: inline-block;
 }
 
 .delete-modal-actions {
-  padding: 1rem 1.5rem 1.5rem;
+  padding: 20px;
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  border-top: 1px solid #eee;
+  justify-content: center;
+  gap: 12px;
+  background: #f8fafc;
 }
 
-.btn-danger {
-  background: #e74c3c;
-  color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background: #d32f2f;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .delete-modal-actions {
-    flex-direction: column;
-  }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
