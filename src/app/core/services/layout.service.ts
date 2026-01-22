@@ -1,7 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class LayoutService {
+  // Default true di HP (tertutup), false di Desktop (terbuka)
   readonly isSidebarCollapsed = signal<boolean>(window.innerWidth <= 768);
 
   toggleSidebar(): void {
