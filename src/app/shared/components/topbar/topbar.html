@@ -3,6 +3,12 @@
         role="banner"
         aria-label="Main Header">
 
+  <div class="mobile-toggle-wrapper">
+    <button class="mobile-toggle" (click)="toggleSidebar()">
+      ☰
+    </button>
+  </div>
+
   <h1 class="navbar-title">
     {{ (pageTitle$ | async) || 'Dashboard' }}
   </h1>

@@ -22,7 +22,7 @@ import {LayoutService} from '../../../core/services/layout.service';
 export class DashboardLayoutComponent {
   isSidebarCollapsed: Signal<boolean>;
 
-  constructor(private layoutService: LayoutService) {
+  constructor(protected layoutService: LayoutService) {
     this.isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
   }
 }

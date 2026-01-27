@@ -5,25 +5,19 @@
   color: white;
   padding: 24px 20px;
   min-height: 100vh;
-
-  /* Fixed position agar tetap di kiri saat scroll */
   position: fixed;
   left: 0;
   top: 0;
-
   overflow-y: auto;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
-
-  /* Z-Index 100 ensures it stays above the Topbar (which is z-index 90) */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease, padding 0.3s ease;
   z-index: 100;
-
   display: flex;
   flex-direction: column;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Mini Sidebar State */
+/* Mini Sidebar State (Desktop) */
 .sidebar.collapsed {
   width: 80px;
   padding: 24px 12px;
@@ -56,20 +50,6 @@
   font-weight: 800;
   letter-spacing: 0.5px;
   white-space: nowrap;
-}
-
-.sidebar-logo-mini {
-  font-weight: 900;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .toggle-sidebar {
@@ -184,7 +164,6 @@
   transform: scale(1.05);
 }
 
-/* ACTIVE STATE */
 .nav-link.active {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -205,7 +184,6 @@
   opacity: 0.8;
 }
 
-/* Mini Sidebar specific */
 .sidebar.collapsed .nav-link {
   justify-content: center;
   padding: 12px 0;
@@ -223,7 +201,6 @@
   justify-content: center;
 }
 
-/* --- LOGOUT SECTION --- */
 .logout-link {
   margin-top: auto;
   padding-top: 20px;
@@ -238,21 +215,48 @@
   background: rgba(255, 50, 50, 0.2);
 }
 
-/* --- RESPONSIVE LOGIC --- */
+/* --- RESPONSIVE LOGIC (UBAH TOTAL DISINI) --- */
 @media (max-width: 768px) {
   .sidebar {
-    width: 80px; /* Default Mini di Mobile */
-    padding: 24px 10px;
+    /* DEFAULT STATE (isCollapsed = true): Sembunyi ke kiri (-100%) */
+    width: 280px !important; /* Tetap lebar penuh saat muncul */
+    transform: translateX(-100%);
+    z-index: 1000; /* Di atas segalanya */
+    padding: 24px 20px; /* Padding normal */
   }
 
-  /* Jika user menekan toggle (expand), sidebar melebar menimpa konten */
+  /* STATE: MENU DIBUKA (class .collapsed HILANG) */
+  /* Di Desktop: !collapsed = lebar. Di Mobile: !collapsed = muncul */
   .sidebar:not(.collapsed) {
-    width: 280px;
-    padding: 24px 20px;
+    transform: translateX(0); /* Geser masuk */
     box-shadow: 10px 0 30px rgba(0,0,0,0.5);
   }
 
+  /* STATE: MENU DITUTUP (class .collapsed ADA) */
+  .sidebar.collapsed {
+    width: 280px !important; /* Jangan mengecil jadi 80px */
+    transform: translateX(-100%); /* Sembunyi */
+    padding: 24px 20px; /* Tetap padding normal */
+  }
+
+  /* Sembunyikan toggle internal sidebar (karena sudah ada di topbar) */
   .toggle-sidebar {
-    display: block;
+    display: none !important;
+  }
+
+  /* Paksa konten tampil normal, abaikan style "collapsed" desktop */
+  .sidebar.collapsed .nav-text,
+  .sidebar.collapsed .sidebar-title,
+  .sidebar.collapsed .user-card,
+  .sidebar.collapsed .user-name,
+  .sidebar.collapsed .user-nim,
+  .sidebar.collapsed .user-program {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  .sidebar.collapsed .nav-link {
+    justify-content: flex-start;
+    padding: 12px 16px;
   }
 }

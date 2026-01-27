@@ -1,10 +1,16 @@
 <div class="app-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed()">
 
+  <div class="mobile-backdrop"
+       *ngIf="!isSidebarCollapsed()"
+       (click)="layoutService.toggleSidebar()">
+  </div>
+
   <app-sidebar></app-sidebar>
   <app-topbar></app-topbar>
 
   <main class="main-content">
-    <div class="page-container"> <router-outlet></router-outlet>
+    <div class="page-container">
+      <router-outlet></router-outlet>
     </div>
   </main>
 

@@ -31,7 +31,7 @@ export class TopbarComponent implements OnInit {
   constructor(
     private readonly authService: AuthService,
     private readonly headerService: HeaderService,
-    private readonly layoutService: LayoutService,
+    private readonly layoutService: LayoutService, // Pastikan service ini ada
     private readonly router: Router
   ) {
     this.pageTitle$ = this.headerService.currentPageTitle;
@@ -41,6 +41,11 @@ export class TopbarComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserSession();
     this.syncTitleWithRoute();
+  }
+
+  // [BARU] Method untuk tombol mobile
+  toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
   }
 
   private loadUserSession(): void {

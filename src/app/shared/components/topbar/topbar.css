@@ -33,6 +33,18 @@
   white-space: nowrap;
 }
 
+/* [BARU] Tombol Menu default hidden */
+.mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 12px;
+  padding: 4px;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -66,22 +78,32 @@
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
+/* RESPONSIVE MOBILE */
 @media (max-width: 768px) {
   :host {
-    left: 80px !important;
-    width: calc(100% - 80px) !important;
+    /* [UBAH] Reset posisi agar full width */
+    left: 0 !important;
+    width: 100% !important;
+    z-index: 101; /* Pastikan di atas overlay sidebar */
   }
 
   .navbar {
-    margin: 15px 15px 0 15px;
+    margin: 0; /* Hilangkan margin floating */
     padding: 12px 16px;
+    border-radius: 0; /* Jadi kotak penuh */
   }
 
   .navbar-title {
     font-size: 1.1rem;
+    flex: 1;
   }
 
   .user-details {
     display: none;
+  }
+
+  /* [BARU] Munculkan tombol menu */
+  .mobile-toggle {
+    display: block;
   }
 }
